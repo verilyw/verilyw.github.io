@@ -1,5 +1,5 @@
 # The base URL of the site; the only required configuration variable.
-base_url = "wanderya.github.io"
+base_url = "https://deepthought-theme.netlify.app"
 
 # The site title and description; used in feeds by default.
 title = "devintr"
