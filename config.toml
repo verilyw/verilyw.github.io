@@ -169,10 +169,10 @@ galleria.enabled = true
 navbar_items = [
     { code = "en", nav_items = [
         { url = "$BASE_URL/", name = "Home" },
-        { url = "$BASE_URL/posts", name = "Posts" },
-        { url = "$BASE_URL/docs", name = "Docs" },
-        { url = "$BASE_URL/tags", name = "Tags" },
-        { url = "$BASE_URL/categories", name = "Categories" },
+        { url = "$BASE_URL/posts", name = "文章" },
+        { url = "$BASE_URL/skills", name = "技能树" },
+        { url = "$BASE_URL/categories", name = "分类" },
+        { url = "$BASE_URL/tags", name = "标签" },
     ] },
 ]
 
