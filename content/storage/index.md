@@ -3,10 +3,8 @@ title="Database Storage"
 date=2022-08-19
 
 [taxonomies]
-# categories = ["cmu15-455"]
-tags = ["storage", "database"]
+tags = ["storage", "database", "cmu15-455"]
 +++
-# Database Storage
 
 ![](2022-08-15_12-25.png) 
 

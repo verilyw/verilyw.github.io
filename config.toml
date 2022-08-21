@@ -10,7 +10,6 @@ compile_sass = true
 highlight_code = true
 build_search_index = false
 generate_feed = true
-highlight_theme = "base16-ocean-light"
 default_language = "zh"
 
 taxonomies = [
@@ -34,6 +33,11 @@ taxonomies = [
     {name = "tags"},
 ]
 
+[markdown]
+highlight_code = true
+highlight_theme = "one-dark"
+render_emoji = true
+
 # [languages.en.translations]
 # language_name = "English"
 # about = "About"
@@ -55,9 +59,6 @@ links = "友链"
 date_format = "%Y-%m-%d"
 next_page = "下一页"
 last_page = "上一页"
-
-[extra]
-author="cedar"
 
 [extra.social]
 github = "wanderya"

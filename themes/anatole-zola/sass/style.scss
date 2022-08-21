@@ -4,7 +4,7 @@ html {
 
 body {
   font-family: 'PingHei', 'PingFang SC', Helvetica Neue, 'Work Sans', 'Hiragino Sans GB', 'Microsoft YaHei', SimSun, sans-serif;
-  font-size: 15px;
+  font-size: 18px;
   width: 100%;
   margin: 0 auto 30px auto;
   line-height: 1.6em;
@@ -13,7 +13,7 @@ body {
 p {
   line-height: 1.9em;
   font-weight: 400;
-  font-size: 14px;
+  font-size: 16px;
 }
 
 a {
@@ -144,7 +144,7 @@ img {
     }
 
     float: left;
-    font-size: 12px;
+    font-size: 14px;
 
     li {
       position: relative;
@@ -307,7 +307,7 @@ img {
   .social-links {
     list-style: none;
     padding: 0;
-    font-size: 14px;
+    font-size: 30px;
     text-align: center;
 
     li {
@@ -399,8 +399,12 @@ img {
 
     blockquote {
       box-sizing: border-box;
-      margin: 1.6em 0 1.6em -2em;
-      padding: 0 0 0 1.6em;
+      margin: 1.6em 0 1.6em 0em;
+      padding: 0 0 0 1.2em;
+      background-color: rgba(0, 153, 123, 0.05);
+      // --quote-bg-color: rgba(0, 153, 123, 0.05);
+      // text-color: #81888D;
+      // --quote-text-color: #81888D ;
     }
 
     .footnote-definition {
@@ -966,7 +970,7 @@ html.theme--light {
       }
 
       blockquote {
-        border-left: #4a4a4a 0.2em solid;
+        border-left: #1ba784 0.3em solid;
       }
 
       & code {
