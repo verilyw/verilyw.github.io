@@ -1,30 +1,73 @@
 # The base URL of the site; the only required configuration variable.
 base_url = "https://wanderya.github.io"
 
-# The site title and description; used in feeds by default.
 title = "晚秋"
+description = "空山新雨后，天气晚来秋"
 
-theme = "even"
+theme = "anatole-zola"
+
 compile_sass = true
+highlight_code = true
+build_search_index = false
 generate_feed = true
+highlight_theme = "base16-ocean-light"
+default_language = "zh"
 
 taxonomies = [
-    {name = "categories", feed = true},
-    {name = "tags", feed = true},
+    {name = "tags"},
+    # {name = "categories"}
 ]
 
-[markdown]
-highlight_code = true
+# [languages.en]
+# title = "Autumn"
+# description = "After the rain the empty mountain, the weather late to fall."
+# generate_feed = true
+# taxonomies = [
+#     {name = "tags"},
+# ]
+
+[languages.zh]
+title = "晚秋"
+description = "空山新雨后，天气晚来秋"
+generate_feed = true
+taxonomies = [
+    {name = "tags"},
+]
+
+# [languages.en.translations]
+# language_name = "English"
+# about = "About"
+# home = "Home"
+# tags = "Tags"
+# archive = "Archive"
+# links = "Links"
+# date_format = "%Y-%m-%d"
+# next_page = "Next Page"
+# last_page = "Last Page"
+
+[languages.zh.translations]
+language_name = "中文"
+home = "首页"
+about = "关于"
+tags = "标签"
+archive = "归档"
+links = "友链"
+date_format = "%Y-%m-%d"
+next_page = "下一页"
+last_page = "上一页"
 
 [extra]
-author = "=.="
-even_menu = [
-    {url = "$BASE_URL", name = "Home"},
-    {url = "$BASE_URL/categories", name = "Categories"},
-    {url = "$BASE_URL/tags", name = "Tags"},
-    {url = "$BASE_URL/about", name = "About"},
-]
-katex_enable = true
-katex_auto_render = true
+author="cedar"
 
-even_title = "晚秋"
+[extra.social]
+github = "wanderya"
+twitter = "w"
+dribbble = ""
+weibo = ""
+linkedin = ""
+flickr = ""
+
+[extra.show]
+tags = true
+links = false
+

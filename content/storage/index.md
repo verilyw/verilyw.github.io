@@ -3,7 +3,7 @@ title="Database Storage"
 date=2022-08-19
 
 [taxonomies]
-categories = ["cmu15-455"]
+# categories = ["cmu15-455"]
 tags = ["storage", "database"]
 +++
 # Database Storage

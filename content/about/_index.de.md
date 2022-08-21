@@ -1,7 +1,7 @@
 +++
 title = "About"
-path = "about"
 template = "about.html"
+paginate_by = 0
 +++
 
-Nothing to Say.
+About this site
