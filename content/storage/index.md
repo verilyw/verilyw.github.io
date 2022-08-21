@@ -1,11 +1,15 @@
 +++
-title="Database Storage"
+title="cmu15-455 Database Storage"
 date=2022-08-19
 
 [taxonomies]
 tags = ["storage", "database", "cmu15-455"]
+[extra]
+summary = "存储层"
+mathjax = "tex-mml"
 +++
 
+课程大纲如下，本节重点在与了解数据库系统在物理的存储层的架构和管理
 ![](2022-08-15_12-25.png) 
 
 ## Disk-oriented architecture

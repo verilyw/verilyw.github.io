@@ -1,5 +1,5 @@
 +++
-title = "Buffer Pool"
+title = "cmu15-455 Buffer Pool"
 date = 2022-08-19
 [taxonomies]
 # categories = ["cmu15-455"]
