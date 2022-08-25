@@ -32,7 +32,7 @@ public:
 
 其内存布局如下：
 
-```c++
+```
       |                        |          
       |------------------------| <------ X class object memory layout
       |        int X::x        |
@@ -80,7 +80,7 @@ public:
 ```
 其内存布局如下：
 
-```c++
+```
       |                        |          
       |------------------------| <------ X class object memory layout
       |        int X::x        |
@@ -155,7 +155,7 @@ public:
 
 其内存布局如下：
 
-```c++
+```
       |                              |          
       |------------------------------| <------ Y class object memory layout
       |          int X::x            |
@@ -233,7 +233,7 @@ public:
 ```
 其内存布局如下:
 
-```c++
+```
       |                              |          
       |------------------------------| <------ Z class object memory layout
 stack |          int X::x            |         
@@ -283,7 +283,7 @@ class Z : public virtual X { int z; };
 class A : public Y, public Z { int a; };
 ```
 其内存布局如下：
-```c++
+```
                   |                |          
  Y class  ------> |----------------| <------ A class object memory layout
 sub-object        |   Y::y         |          
