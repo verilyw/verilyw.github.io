@@ -308,7 +308,3 @@ Radix Tree和Trie Tree的区别，Radix只有共享的才需要单独的节点�
 Radix的有点就是插入和删除很简单。
 
 ![](./7.png)
-
-## Index Concurrency Control
-
-本节是讨论多线程并发访问索引。
