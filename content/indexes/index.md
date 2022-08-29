@@ -1,9 +1,9 @@
 +++
-title = "cmu15-455 Hash Tables"
+title = "cmu15-455 Indexes"
 date = 2022-08-21
 
 [taxonomies]
-tags = ["hash", "database", "cmu15-455"]
+tags = ["hash", "database", "cmu15-455", "B+Tree", "indexes"]
 [extra]
 mathjax = "tex-mml"
 +++
@@ -235,3 +235,80 @@ Leaf节点的内容(value)也分两种：
 ![](./2022-08-26_10-42.png)
 
 + 批量插入，一个一个插入效率低，因为需要不断做分裂。高效的做法是，等插入了很多之后，一次性做一个B+树重建。
+
+#### Cluster Indexes
+
+clustered indexes 是b+树的应用。在Innodb中，每个表都有一个聚簇索引，该索引是根据primary key对行记录生成的b+树索引，如果没有primary key，会自动生成自增id作为替代。叶子节点存放行数据，称之为数据页，故表中的数据也树聚簇索引中的一部分，数据页通过一个双向链表连接。
+
+除了clustered Indexes以外，都称为Secondary Indexes，与聚簇索引的区别在于辅助索引的叶子节点中存放的是主键的键值，clustered indexes只有一个，但辅助索引可以有多个。因此，通过辅助索引只能查到主键id，如果要读到数据，还需要查一次聚簇索引，好处是辅助索引不包含数据，所以远小于聚簇索引，查询效率高。
+
+可以用一列，或者多列来创建辅助索引，称为联合索引，联合索引和普通索引的结构没什么不同，只是会在节点中同时记录下多个列的值，遵循最左原则，先按第一个列排序，再按第二列排，依次下去。因此，查询条件也需要遵循最左原则。
+
+![](./3.png)
+
+#### Additional Index Usage
+
+除了常规索引外，DBMS还存在许多额外的索引方法。
+
++ 隐式索引(Implicit Indexes): 大多数DBMS都会自动创建一个索引，保证完整性约束。(e.g., primary key, unique constraints) 
++ 部分索引(Partial Indexes): 对整个表的子集创建索引。这减少了相应的开销和大小。
++ Convering Indexes
++ Index Include Columns
++ Functions/Expression Indexes
+
+### SkipList（跳表）
+
+[wiki](https://en.wikipedia.org/wiki/Skip_list) & 
+[paper](http://dl.acm.org/citation.cfm?id=78977)
+
+如果用有序数组来实现索引，可以用简单的二分，但是插入和删除会比较麻烦。最简单的方法实现动态保存的index是使用有序链表，但链表只支持线性搜索，时间复杂度为O(n)。如何让链表也能二分查找，提高查询效率，这就是skip list.
+
+![](./4.png)
+
+跳表的数据存放在第一层，上面的都是索引，这样避免一个个遍历，越往上层建的索引越稀疏，总之是为了模拟出二分，用空间换时间，因此时间复杂度近似O(log(n)).
+
++ 跳表的插入
+
+如下图，插入(k5,v5)，这里如何建立索引？即要把k5加到哪几层去。
+
+答案是flip coin(一个伯努力过程)。连续抛硬币，连续出现的正面的次数为k，我们就会对k层建立索引，如果k大于当前最大的level，就需要建立新的level。这样做有两个好处，因为伯努力过程，所以自然越高的level出现的概率越低，以`1/2`降低，并且插入的数据越多，出现较大k的概率越大。
+
+![](./5.png)
+
++ 跳表查询
+
+查询以二分的思路就行。
+![](./6.webp)
+
++ 跳表删除
+
+关键需要一个标识，先逻辑删除，再物理删除。
+
+![](./6.png)
+ 
+跳表的优点，相对b+树更节约内存，不需要rebalance。
+
+缺点是对缓存不友好，因为是链表的关系。其次是反向查找不方便。
+
+### Radix tree(基数树)
+
+在b+树中，`inner node keys`并不会告诉你你要找的key是否存在，因此，你必须遍历到`leaf node`。这意味着，在树中的每个层上至少有一个buffer pool page未命中，只是为了发现某个key不存在。
+
+使用trie tree对key进行表示，这样就不用比较整个key。
+
+核心思路，前缀树(trie tree)，节点的path就代表key，可以reconstructed.
+![](./2022-08-29_14-29.png)
+
+树高取决于key的length，而不是key的多少，key增多，那么表示key的length肯定会变长，也不需要rebalance.
+
+Radix Tree和Trie Tree的区别，Radix只有共享的才需要单独的节点。
+
+![](./2022-08-29_14-31.png)
+
+Radix的有点就是插入和删除很简单。
+
+![](./7.png)
+
+## Index Concurrency Control
+
+本节是讨论多线程并发访问索引。
