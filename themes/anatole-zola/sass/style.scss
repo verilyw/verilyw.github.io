@@ -264,7 +264,7 @@ img {
 }
 
 #sidebar {
-  width: 25%;
+  width: 20%;
   -webkit-background-size: cover;
   background-size: cover;
   height: 100%;
@@ -276,7 +276,7 @@ img {
 
   .logo-title {
     text-align: center;
-    padding-top: 180px;
+    padding-top: 50px;
 
     .description {
       font-size: 14px;
@@ -312,7 +312,7 @@ img {
 
     li {
       display: inline;
-      padding: 0 4px;
+      padding: 0px 4px;
       line-height: 0;
     }
   }
@@ -798,11 +798,11 @@ a.btn {
     z-index: 1;
 
     .logo-title {
-      padding-top: 120px;
+      padding-top: 100px;
 
       .title {
         img {
-          width: 100px;
+          width: 100px !important;
         }
 
         h3 {

@@ -1,5 +1,5 @@
 +++
-title = "Index Concurrency Control"
+title = "cmu15-455 Index Concurrency Control"
 date = 2022-08-29
 [taxonomies]
 tags = ["cmu15-455", "database", "index concurrency"]
@@ -19,20 +19,22 @@ tags = ["cmu15-455", "database", "index concurrency"]
 在这里主要讨论的是`Physical correctness`, 内部数据结构的并发访问。
 
 在数据库领域，这里做一下`lock`和`latch`的区别，latch其实才是我们在并发编程中所熟悉的锁的概念，而lock是在处理DBMS并发控制，如事务处理中用到的概念。
-因此，讨论内部数据结构的并发控制，用的就是latch.
+因此，讨论内部数据结构的并发控制，用的是latch.
+
 ![](./2022-08-29_15-50.png)
 
 
 latch可以分为两种模式，读和写。从下表中可以看出，要解决的冲突是读写冲突，而读读是没有冲突的。
+
 ![](./2022-08-29_15-54.png)
 
-+ **DBMS中的Latch**
+**DBMS中的Latch**
 
 现代CPU硬件都提供了关于实现latch的原语指令，如`compare-and-swap`(CAS)。这里简要介绍一下DBMS实现latch的几种方法。
 
 1. 借助操作系统内部构建的mutex（如linux的futex)。
 
-这种方式因为借助了OS的管理，所以对与DBMS来说并不是好的想法，同时有很大的开销。
+这种方式因为借助了OS的管理，所以对与DBMS来说并不是好的idea，同时有很大的开销。
 
 `std::mutex`.
 
@@ -82,7 +84,9 @@ latch可以分为两种模式，读和写。从下表中可以看出，要解决
 但是到了C，C有38，44，删除一个也不会导致merge，所以可以释放A，B的latch.
 
 ![](./1.png)
+
 ![](./2.png)
+
 ![](./3.png)
 
 
@@ -91,12 +95,14 @@ latch可以分为两种模式，读和写。从下表中可以看出，要解决
 B的时候有一个空位，没有split风险，故可以释放A。到了D的时候，可能有split风险，故不能释放B，到I发现有空，故释放B，D.
 
 ![](./2022-08-29_16-54.png)
+
 ![](./2022-08-29_16-54_2.png)
 
 
 对于需split的插入列子，如下，到F的时候发现需要split，所以不能释放C，C也要增加节点。
 
 ![](./4.png)
+
 ![](./5.png)
 
 
@@ -135,6 +141,7 @@ T2冲突的时候，有两个选择，一个是等待，一个是自杀(防止�
 这样对parent更新可以批量，并且降低写latch的冲突概率。
 
 ![](./8.png)
+
 ![](./9.png)
 
 后续有线程单独进行更新parent
