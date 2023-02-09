@@ -1,5 +1,5 @@
 # The base URL of the site; the only required configuration variable.
-base_url = "https://wanderya.github.io"
+base_url = "https://verilyw.github.io"
 
 title = "W.'s blog"
 description = "all for free"
