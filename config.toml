@@ -1,8 +1,8 @@
 # The base URL of the site; the only required configuration variable.
 base_url = "https://wanderya.github.io"
 
-title = "晚秋"
-description = "空山新雨后，天气晚来秋"
+title = "W.'s blog"
+description = "all for free"
 
 theme = "anatole-zola"
 
@@ -26,8 +26,8 @@ taxonomies = [
 # ]
 
 [languages.zh]
-title = "晚秋"
-description = "空山新雨后，天气晚来秋"
+title = "W.'s blog"
+description = "all for free"
 generate_feed = true
 taxonomies = [
     {name = "tags"},

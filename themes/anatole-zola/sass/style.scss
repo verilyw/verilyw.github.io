@@ -288,7 +288,7 @@ img {
 
     .title {
       h3 {
-        text-transform: uppercase;
+        text-transform: none;
         font-size: 2rem;
         font-weight: bold;
         letter-spacing: 2px;
@@ -324,14 +324,14 @@ img {
 
   .post-title {
     h1 {
-      text-transform: uppercase;
+      text-transform: none;
       font-size: 30px;
       letter-spacing: 5px;
       line-height: 1;
     }
 
     h2 {
-      text-transform: uppercase;
+      text-transform: none;
       letter-spacing: 1px;
       font-size: 28px;
       line-height: 1;
@@ -339,7 +339,7 @@ img {
     }
 
     h3 {
-      text-transform: uppercase;
+      text-transform: none;
       letter-spacing: 1px;
       line-height: 1;
       font-weight: 600;

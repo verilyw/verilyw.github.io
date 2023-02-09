@@ -1,6 +1,6 @@
 +++
-title = "c++踩坑日记之`auto`"
-date = 2022-08-19
+title = "c++ auto的问题"
+date = 2022-09-19
 [taxonomies]
 tags = ["c++"]
 +++
