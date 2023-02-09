@@ -1,0 +1,406 @@
+<!DOCTYPE html>
+<html lang="en"  class="theme--light" >
+
+<head>
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1, viewport-fit=cover">
+  <link rel="apple-touch-icon-precomposed" sizes="144x144" href="https://verilyw.github.io/images/apple-touch-icon-144x144.png" />
+  <link rel="apple-touch-icon-precomposed" sizes="120x120" href="https://verilyw.github.io/images/apple-touch-icon-120x120.png" />
+  <link rel="apple-touch-icon-precomposed" sizes="72x72" href="https://verilyw.github.io/images/apple-touch-icon-72x72.png" />
+  <link rel="apple-touch-icon-precomposed" sizes="57x57" href="https://verilyw.github.io/images/apple-touch-icon-57x57.png" />
+  <link rel="short icon" href="https://verilyw.github.io/icons/favicon-16x16.png" type="image/x-icon" />
+  <link rel="stylesheet" href="https://verilyw.github.io/style.css">
+  <link href="https://cdn.bootcdn.net/ajax/libs/font-awesome/5.15.1/css/all.min.css" rel="stylesheet">
+  <title>W.&#x27;s blog • cmu15-455 Database Storage</title>
+  
+  
+  <link rel="alternate" type="application/rss+xml" title="W.&#x27;s blog" href="https://verilyw.github.io/rss.xml">
+  
+  
+  
+  
+</head>
+
+<body>
+  <div id="sidebar" class="animated fadeInDown">
+    <div class="logo-title">
+      <div class="title">
+        <img src=https://verilyw.github.io/icons/cat_girl.png style="width:384px;" alt="logo" />
+        <h3><a href="https://verilyw.github.io/">W.&#x27;s blog</a></h3>
+        <div class="description">
+          <p>all for free</p>
+        </div>
+      </div>
+    </div>
+    <ul class="social-links"><li><a href="https://github.com/wanderya"><i class="fab fa-github"></i></a></li><li><a href="https://twitter.com/w"><i class="fab fa-twitter"></i></a></li>
+      
+    </ul>
+    <div class="footer">
+      
+      <span>Designed by </span><a href="https://www.caicai.me">CaiCai</a>
+      <div class="by_zola"><a href="https://www.getzola.org/" target="_blank">Proudly published with Zola!</a></div>
+      
+    </div>
+  </div>
+  <div id="main">
+    <div class="page-top animated fadeInDown">
+      <div class="nav">
+        
+        
+        
+        
+        <li><a  href="https://verilyw.github.io/">首页</a></li>
+        <li><a  href="https://verilyw.github.io/about/">关于</a></li><li><a  href="https://verilyw.github.io/tags">标签</a></li><li><a 
+            href="https://verilyw.github.io/archive/">归档</a></li></div>
+      <div class="information">
+        <div class="back_btn">
+          <a onclick="window.history.go(-1)" ><i
+              class="fas fa-chevron-left"></i></a>
+        </div>
+        
+        
+        
+        <div class="avatar"><img src="https://verilyw.github.io/icons/logo.png"></div>
+      </div>
+    </div>
+    <div class="autopagerize_page_element">
+      <div class="content">
+        
+<article class="post animated fadeInDown">
+  <h1><a href="https:&#x2F;&#x2F;verilyw.github.io&#x2F;storage&#x2F;">cmu15-455 Database Storage</a></h1>
+  
+  <div class="post-content"><p>课程大纲如下，本节重点在与了解数据库系统在物理的存储层的架构和管理
+<img src="https://verilyw.github.io/storage/2022-08-15_12-25.png" alt="" /> </p>
+<h2 id="disk-oriented-architecture">Disk-oriented architecture</h2>
+<p>we will foucs on a <code>disk-oriented</code> DBMS architecture that assume that <strong>primary storage location of the database is on non-volatile</strong></p>
+<ul>
+<li><strong>storage architecture:</strong></li>
+</ul>
+<p><img src="https://verilyw.github.io/storage/2022-08-15_12-30.png" alt="" /></p>
+<ul>
+<li>
+<p><strong>Volatile vs. Non-Volatile</strong></p>
+<ul>
+<li>
+<p><strong>Volatile Devices</strong></p>
+<ul>
+<li>Random Access</li>
+<li>Byte-Addressable</li>
+</ul>
+</li>
+<li>
+<p><strong>Non-Volatile Devices</strong></p>
+<ul>
+<li>Block/page addressable</li>
+<li>Sequential access</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<p>磁盘与内存之间的读写存在比较大的速度差距，如何高效地在易失性和非易失性之间交换数据(读写), DBMS的设计应该考虑隐藏这种延迟.</p>
+<h2 id="disk-oriented-dbms">Disk-Oriented DBMS</h2>
+<p>The database is all in disk, and the data in the database files is organized into pages, and the first page is the directory page.</p>
+<p>In order to operate on the data the DBMS needs to bring the data into memory. It does this by having <em>buffer pool</em> that <strong>manages the movement back and forth between disk and memory.</strong></p>
+<p>The DBMS also have an execution engine that will execute queries. The execution engine will ask the buffer pool for a specific page, and the buffer pool will take care of bringing that page into memory and giving the execution engine a pointer to the page in memory. The buffer pool manager will ensure that page is there while the execution engine is operating on that memory.</p>
+<p><img src="https://verilyw.github.io/storage/2022-08-15_12-55.png" alt="" /></p>
+<h2 id="dbms-vs-os">DBMS vs. OS</h2>
+<p>they are all very complicated essential softwares.</p>
+<p><strong>high level design goal</strong>:</p>
+<ul>
+<li>
+<p>DBMS is to support databases that exceed the amount of memory aviablie. Since the r/w is expensive, it is manged carefully. We do not want large stalls from fetching something from disk to slow down everything else. So we want the DBMS to be ables to process other queries while it is waiting to get the data from disk.</p>
+</li>
+<li>
+<p>like virtual memory, where there is a large address space and a place for the OS to bring in pages from disk.</p>
+</li>
+<li>
+<p>possible to use the OS by using:</p>
+<ul>
+<li><code>madive</code>: Tells the OS know when you are planning on reading certain pages.</li>
+<li><code>mlock</code>: Tells the OS to not swap memory ranges out to disk.</li>
+<li><code>msync</code>: Tells the OS to flush ranges out to disk.</li>
+</ul>
+</li>
+</ul>
+<h2 id="file-storage">File Storage</h2>
+<p>The DBMS stores a database as one or more files on disk. Some may use a file hierarchy, others may use a single file(e.g., SQLite).</p>
+<p>The OS does not know anything about the contents of these files. Only the DBMS knows how to decipher their contents, since it is encoded in a way specific to the DBMS.</p>
+<p>The DBMS's <em>storage manager</em> is responsible for managing a database's files.</p>
+<ul>
+<li>files as collection of page</li>
+<li>keep track of what data has been read and written to pages, as well how much free space there is in the page.</li>
+</ul>
+<h2 id="database-pages">Database Pages</h2>
+<p><strong>A page is a fixed-size block of data.</strong> The DBMS organizes the database across one or more files in pages.</p>
+<p>Pages can contain different kinds of data(tuples, meta-data, indexes, log records...)</p>
+<p>Most systems will not mix these types within pages. Some systems will require that it is self-contained, means that all the information needed to read each page is on the page itself.</p>
+<p><strong>Each page is given a unique identifier</strong>. If the database is a single file, the the page can just the file offset. Most DBMSs have an <em>indirection layer</em> that maps a page id to a file path and offset. The upper levels of the system  will ask for a specific page number and the storage manager will have to return that page number into a file and an offset to find the page.</p>
+<p>Most DBMSs use fixed-size pages to avoid the engineering overhead needed to support variable-sized pages.</p>
+<p>three concepts of pages in DBMS:</p>
+<ol>
+<li>Hardware page(usually 4KB)</li>
+<li>OS page(4KB)</li>
+<li>Database page(1-16KB)</li>
+</ol>
+<p>The storage device gurantees an atomic write of the size the hardware page. (If our database page is large than our hardware page, the DBMS will have to extra measure to ensure that the data get written out safely since the program cant get partway through writing a database page to disk when system crashes.)</p>
+<h2 id="database-heap">Database Heap</h2>
+<p>There are a couple of ways to find the location of the page a DBMS wants on the disk, and the heap file organization is one of the ways.</p>
+<ul>
+<li>Heap File</li>
+<li>Sequential/Sorted File</li>
+<li>Hashing File</li>
+</ul>
+<p><strong>A <em>heap file</em> is an unordered collection of pages where tuples are stored in random order.</strong></p>
+<p>The DBMS can locate a page on disk given a <code>page_id</code> by using a linked list of pages or a page directory</p>
+<ol>
+<li><strong>Linked List</strong>: Header page holds pointers to a list of free pages and a list of data pages. However, if teh DBMS is looking for a specific page, it has to do a sequential scan on the data page list until it finds the page it is looking for.</li>
+<li><strong>Page Directory</strong>: DBMS maintains special pages that track locations of data pages along with the amount os free space on each page.</li>
+</ol>
+<p><img src="https://verilyw.github.io/storage/2022-08-15_14-02.png" alt="" />
+<img src="https://verilyw.github.io/storage/2022-08-15_14-02_1.png" alt="" /></p>
+<h2 id="page-layout">Page Layout</h2>
+<p><strong>Every page includes a header that records meta-data about the page's contents</strong>:</p>
+<ul>
+<li>Page size</li>
+<li>Checksum</li>
+<li>DBMS versin</li>
+<li>Transaction visibility</li>
+<li>Some systems require pages to be self-contained.</li>
+</ul>
+<p><code>strawman</code>数据布局的方法在删除tuple或者tuple有可变长度的属性的时候会出现问题。</p>
+<p>There are two main approach to laying out data in pages.</p>
+<ol>
+<li>slotted-pages</li>
+<li>log-structured</li>
+</ol>
+<p><strong>Slotted Pages</strong>: Pages maps slots to offsets.</p>
+<ul>
+<li>Most common approach used in DBMSs today</li>
+<li>To add a tuple, slot array 从头到尾增长，tuple data 将从尾到头增长， 当slot array 和 tuple data相遇时视为页满。</li>
+<li>Header keeps track of the number of slots and the offset of the starting location of last used slot and a slot array.</li>
+</ul>
+<p><img src="https://verilyw.github.io/storage/2022-08-15_14-16.png" alt="" /></p>
+<p><strong>Log-Structured</strong>: Instead of storing tuples, the DBMS onlu stores log records.
+<img src="https://verilyw.github.io/storage/2022-08-15_14-24.png" alt="" /></p>
+<h2 id="tuple-layout">Tuple Layout</h2>
+<p><strong>A tuple is essentially a sequence of bytes.</strong> It is DBMS's job to interpret those bytes into attribute types and values.</p>
+<p><strong>Tuple Header</strong>: Contains meta-data about the tuple</p>
+<ul>
+<li>Visbility information for the DBMS's concurrency control protocol.</li>
+<li>Bit Map for NULL values.</li>
+<li>Note that the DBMS dose not need to store meta-data about the schema of the database here.</li>
+</ul>
+<p><strong>Tuple Data</strong>: Actual data for attributes.</p>
+<ul>
+<li>attributes are typically stored in the order that you specify them when you create the table.</li>
+<li>Most DBMSs do not allow a tuple to exceed the size of a page.</li>
+</ul>
+<p><strong>Unique Identifier</strong>:</p>
+<ul>
+<li>Each tuple in the database is assigned a unique identifier</li>
+<li>Most common: <code>page_id + (offset or slot)</code></li>
+<li>An application <strong>cannot</strong> rely on these ids to mean anything</li>
+</ul>
+<p><strong>Denormalized Tuple Data</strong>: If two tables are related, the DBMS can &quot;pre-join&quot; them, so the tables end up on the same page. (read faster, but make updates more expensive)</p>
+<p><img src="https://verilyw.github.io/storage/2022-08-15_14-36.png" alt="" /></p>
+<h2 id="data-representation">Data Representation</h2>
+<p>Tuples' data is essentially just byte arrays. It is up to the DBMS to know how to interpret those bytes to derive the values for attributes.</p>
+<p>A <em>data representation</em> scheme is how a DBMS stores the bytes for a value.</p>
+<p>four main types that can be stored in tuples: integers, variable precision numbers, fixed point precision numbers, variable length values, and dates/times.</p>
+<ul>
+<li>
+<p><strong>Integers</strong></p>
+<ul>
+<li>Most DBMSs store integers using their &quot;native&quot; c/c++ types as specified by the IEEE-754 standard.</li>
+<li><code>INTEGER, BIGINT, SMALLINT, TINYINT</code></li>
+</ul>
+</li>
+<li>
+<p><strong>Variable Percision Numbers</strong></p>
+<ul>
+<li>also use the &quot;native&quot; c/c++ types specified by IEEE-754.</li>
+<li>faster to computer because CPU can execute instructions on them directly.</li>
+<li><code>FLOAT, REAL</code></li>
+</ul>
+</li>
+<li>
+<p><strong>Fixed Point Precision Numbers</strong></p>
+<ul>
+<li>numeric data types with arbitary precision and scale. They are typically stored in exact, variable-length binary representation with additional meta-data that will tell the system things like where the decimal should be.</li>
+<li>used when rounding errors are unacceptable.(but performance penalty)</li>
+<li><code>NUMERIC, DECIMAL</code></li>
+</ul>
+</li>
+<li>
+<p><strong>Variable Length Data</strong></p>
+<ul>
+<li>An array of bytes of arbitary length.</li>
+<li>Has a header which keeps track of the length of the string to make it easy to jump to he next value. </li>
+<li>Some systems will let you store these large values in an external file, and then the tuple will contain a pointer to that file.(such as photo, music ...). one downside of this is that the DBMS cannot manipulate the contents of this file.</li>
+<li><code>VARCHAR, VARBINARY, TEXT, BLOB</code></li>
+</ul>
+</li>
+</ul>
+<p><img src="https://verilyw.github.io/storage/2022-08-16_14-29.png" alt="" />
+<img src="https://verilyw.github.io/storage/2022-08-16_14-29_1.png" alt="" /></p>
+<ul>
+<li><strong>Datas and Times</strong>
+<ul>
+<li><code>TIME, DATA, TIMESTAMP</code></li>
+</ul>
+</li>
+</ul>
+<p><strong>System Catalogs</strong></p>
+<p>In order for the DBMS to be able to read these value, it maintains an internal catalog to tell it meta-data about the databases.</p>
+<p>The meta-data will contain what tables and columns the databases have along with their types and the orderings of the values.</p>
+<ul>
+<li>Tables, columns, indexes, views</li>
+<li>User, permissions,</li>
+<li>Internal statistics</li>
+</ul>
+<h2 id="workloads">Workloads</h2>
+<p><img src="https://verilyw.github.io/storage/2022-08-16_14-33.png" alt="" /></p>
+<p><strong>OLTP: On-line Transanction Processing</strong></p>
+<ul>
+<li>Fase, short running operations</li>
+<li>Queries operate on single entity at a time</li>
+<li>More wirtes than reads</li>
+<li>Repetitive operations</li>
+<li>Uaually the kind of application that people build first</li>
+<li>Example: User invocations of Amazon. They can add things to their cart, They can make purchases, but the actions only affect their account.
+<img src="https://verilyw.github.io/storage/2022-08-16_14-42.png" alt="" /></li>
+</ul>
+<p><strong>OLAP: On-line Analytical Processing</strong></p>
+<ul>
+<li>Long running more complex queries</li>
+<li>Reads large portions of the database</li>
+<li>Exploratory queries</li>
+<li>Deriving new data from data collected on the OLTP side</li>
+<li>Example: Compute the five most bought items over a one month period for these geographical locations.
+<img src="https://verilyw.github.io/storage/2022-08-16_14-42_1.png" alt="" /></li>
+</ul>
+<p><img src="https://verilyw.github.io/storage/2022-08-16_14-45.png" alt="" /></p>
+<h2 id="storage-models">Storage Models</h2>
+<p>There are different ways to store tuples in pages. We have assumed the <strong>n-ary storage model</strong> so far.</p>
+<h3 id="n-ary-storage-model-nsm">N-Ary Storage Model(NSM)</h3>
+<p>The DBMS stores all of the attributes for a single tuple contiguously, so NSM is also known as a &quot;row store&quot;.</p>
+<p>This approach is ideal for OLTP workloads where transactions tend to operate only an individual entity and insert heavy workloads.</p>
+<p>only one fetch to be able to get all of the attributes for a single tuple.</p>
+<p><img src="https://verilyw.github.io/storage/2022-08-16_14-56.png" alt="" /></p>
+<p><strong>Advantages</strong></p>
+<ul>
+<li>Fast inserts, updates, and deletes.</li>
+<li>Good for queries that need the entire tuple.</li>
+</ul>
+<p><strong>Disadvantages</strong></p>
+<ul>
+<li>Not good for scanning large portions of the table and/or a subset of the attributes. This is because it pollutes the buffer pool by fetching data that is not needed for processing the query.</li>
+</ul>
+<p>two different ways to organize a NSM database:</p>
+<ul>
+<li><strong>Heap-Origanized</strong>: Tuples are stored in blocks called a heap, and the heap dose not necessarily define an order.</li>
+<li><strong>Index-Origanized</strong>: Tuples are stored in the primary key index itself, but different from a clustered index.</li>
+</ul>
+<p><img src="https://verilyw.github.io/storage/2022-08-16_14-57.png" alt="" /></p>
+<h3 id="decomposition-storage-model-dsm">Decomposition Storage Model(DSM)</h3>
+<p>The DBMS stores a single attribute(column) for all tuples contiguously in a block of data. Also known as a &quot;column store&quot;.</p>
+<p>This model is ideal for OLAP workloads where read-only queries perform large scans over a subset of the table's attributes.</p>
+<p><img src="https://verilyw.github.io/storage/2022-08-16_15-04.png" alt="" /></p>
+<p><strong>Advantages</strong></p>
+<ul>
+<li>Reduces the amount of wasted work during query execution because the DBMS only reads the data that it needs for that query.</li>
+<li>Enable better compression because all of the values for the same attribute are sotred contiguously.</li>
+</ul>
+<p><strong>Disadvantages</strong></p>
+<ul>
+<li>Slow for point queries, inserts, updates, and deletes because of the tuple splitting/stitching.</li>
+</ul>
+<p>To <strong>put the tuples back together</strong> when are using a column store, we can use:</p>
+<ul>
+<li>
+<p><strong>Fixed-length offset</strong>:</p>
+<ul>
+<li>Start by assuming the attributes are all fixed-length.</li>
+<li>Then when the system wants the attribute for a specific tuple, it knows how to jumps that spot in the file. To accomandate the variable-length fields, the system can pad them so that they are all the same length, or you could use a dictionary that takes a fixed-size integer and maps the integer to the value.</li>
+</ul>
+</li>
+<li>
+<p><strong>Embedded Tuple IDs</strong>:</p>
+<ul>
+<li>For every attribute in the columns, store the tuple id with it. The system would also need extra information to tell it how to jump to every attribute that has that id.</li>
+</ul>
+</li>
+</ul>
+<p><img src="https://verilyw.github.io/storage/2022-08-16_15-16.png" alt="" /></p>
+<p>Most DBMS use fixed-length offsets.</p>
+<p>Row stores are usually better for OLTP, whiil column stores are better for OLAP.</p>
+</div>
+  <div class="post-footer">
+    <div class="meta">
+      <div class="info">
+        
+          <i class="far fa-sun"></i><span class="date">2022-08-19</span>
+        
+        
+          <i class="fas fa-tags"></i>
+          
+            <a class="tag" href="https://verilyw.github.io/tags/storage">&nbsp;storage</a>
+          
+            <a class="tag" href="https://verilyw.github.io/tags/database">&nbsp;database</a>
+          
+            <a class="tag" href="https://verilyw.github.io/tags/cmu15-455">&nbsp;cmu15-455</a>
+          
+        
+      </div>
+    </div>
+  </div>
+</article>
+<div class="share">
+  <div class="weibo">
+    <a class="fab fa-weibo" href="javascript:void((function(s,d,e){try{}catch(e){}var f='http://service.weibo.com/share/share.php?',u=d.location.href,p=['url=',e(u),'&title=',e(d.title),'&appkey=2924220432'].join('');function a(){if(!window.open([f,p].join(''),'mb',['toolbar=0,status=0,resizable=1,width=620,height=450,left=',(s.width-620)/2,',top=',(s.height-450)/2].join('')))u.href=[f,p].join('');};if(/Firefox/.test(navigator.userAgent)){setTimeout(a,0)}else{a()}})(screen,document,encodeURIComponent));"></a>
+  </div>
+  <div class="twitter">
+    <a class="fab fa-twitter" href="http://twitter.com/share?text=cmu15-455 Database Storage&url=https:&#x2F;&#x2F;verilyw.github.io&#x2F;storage&hashtags=storage,database,cmu15-455"></a>
+  </div>
+</div>
+
+
+
+
+
+
+
+<script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+<script>
+  MathJax = {
+    tex: {
+      displayMath: [['$$', '$$'], ["\\[", "\\]"]],
+      inlineMath: [['$', '$'], ['\\(', '\\)']]
+    }
+  };
+</script>
+<script type="text/javascript" id="MathJax-script" async
+  src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js">
+</script>
+
+
+
+      </div>
+    </div>
+  </div>
+  
+  <script>
+    function showLanguages() {
+      let currentDisplay = document.getElementById("languages").style.display;
+      if (currentDisplay == 'none') {
+        document.getElementById("languages").style.display = 'block';
+      } else {
+        document.getElementById("languages").style.display = 'none';
+      }
+    }
+  </script>
+</body>
+
+</html>

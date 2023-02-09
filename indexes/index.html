@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html lang="en"  class="theme--light" >
+
+<head>
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1, viewport-fit=cover">
+  <link rel="apple-touch-icon-precomposed" sizes="144x144" href="https://verilyw.github.io/images/apple-touch-icon-144x144.png" />
+  <link rel="apple-touch-icon-precomposed" sizes="120x120" href="https://verilyw.github.io/images/apple-touch-icon-120x120.png" />
+  <link rel="apple-touch-icon-precomposed" sizes="72x72" href="https://verilyw.github.io/images/apple-touch-icon-72x72.png" />
+  <link rel="apple-touch-icon-precomposed" sizes="57x57" href="https://verilyw.github.io/images/apple-touch-icon-57x57.png" />
+  <link rel="short icon" href="https://verilyw.github.io/icons/favicon-16x16.png" type="image/x-icon" />
+  <link rel="stylesheet" href="https://verilyw.github.io/style.css">
+  <link href="https://cdn.bootcdn.net/ajax/libs/font-awesome/5.15.1/css/all.min.css" rel="stylesheet">
+  <title>W.&#x27;s blog • cmu15-455 Indexes</title>
+  
+  
+  <link rel="alternate" type="application/rss+xml" title="W.&#x27;s blog" href="https://verilyw.github.io/rss.xml">
+  
+  
+  
+  
+</head>
+
+<body>
+  <div id="sidebar" class="animated fadeInDown">
+    <div class="logo-title">
+      <div class="title">
+        <img src=https://verilyw.github.io/icons/cat_girl.png style="width:384px;" alt="logo" />
+        <h3><a href="https://verilyw.github.io/">W.&#x27;s blog</a></h3>
+        <div class="description">
+          <p>all for free</p>
+        </div>
+      </div>
+    </div>
+    <ul class="social-links"><li><a href="https://github.com/wanderya"><i class="fab fa-github"></i></a></li><li><a href="https://twitter.com/w"><i class="fab fa-twitter"></i></a></li>
+      
+    </ul>
+    <div class="footer">
+      
+      <span>Designed by </span><a href="https://www.caicai.me">CaiCai</a>
+      <div class="by_zola"><a href="https://www.getzola.org/" target="_blank">Proudly published with Zola!</a></div>
+      
+    </div>
+  </div>
+  <div id="main">
+    <div class="page-top animated fadeInDown">
+      <div class="nav">
+        
+        
+        
+        
+        <li><a  href="https://verilyw.github.io/">首页</a></li>
+        <li><a  href="https://verilyw.github.io/about/">关于</a></li><li><a  href="https://verilyw.github.io/tags">标签</a></li><li><a 
+            href="https://verilyw.github.io/archive/">归档</a></li></div>
+      <div class="information">
+        <div class="back_btn">
+          <a onclick="window.history.go(-1)" ><i
+              class="fas fa-chevron-left"></i></a>
+        </div>
+        
+        
+        
+        <div class="avatar"><img src="https://verilyw.github.io/icons/logo.png"></div>
+      </div>
+    </div>
+    <div class="autopagerize_page_element">
+      <div class="content">
+        
+<article class="post animated fadeInDown">
+  <h1><a href="https:&#x2F;&#x2F;verilyw.github.io&#x2F;indexes&#x2F;">cmu15-455 Indexes</a></h1>
+  
+  <div class="post-content"><p>本章主要描述索引，即通过什么样的数据结构可以更加快速地查询到数据，介绍Hash Tables, B+Tree, SkipList。</p>
+<p><strong>在数据之外，DBMS还维护这满足特定查找算法的数据结构，这些数据结构以某种方式引用(指向)数据，这样就可以在这些数据结构上实现高级的查找算法。这种数据结构就是索引</strong></p>
+<h2 id="shu-ju-jie-gou">数据结构</h2>
+<p>DBMS使用各种各样的数据结构应用在系统内部的各个部分。</p>
+<ul>
+<li>内部元数据(internal meta-data): 追踪有关数据库和系统状态的信息</li>
+<li>核心数据存储(core data storage): 数据库中用于元组(tuples)的基本存储</li>
+<li>临时数据结构(tmeporary data structures): DBMS在处理查询时动态构建数据结构，加快查询速度(如 哈希表用于joins).</li>
+<li>表索引(table indexes): 辅助性数据结构， 便于特定元组更容易找到</li>
+</ul>
+<p>设计决策(design decisions):</p>
+<ol>
+<li>数据组织： 如何对内存进行布局以及在数据结构中存储哪些信息。 </li>
+<li>并发： 如何在启用多个线程访问数据结构时不引发并发问题。</li>
+</ol>
+<h2 id="ha-xi-biao">哈希表</h2>
+<p>本节分析了几种常见的hash函数，重点讲解了hash碰撞后的处理方式，包括静态hashing和动态hashing.</p>
+<p>哈希表实现了将键映射到值的关联数组抽象数据类型。</p>
+<p>实现由两部分组成：</p>
+<ul>
+<li><strong>Hash Functions</strong>: 如何将一个大的key空间映射到一个更小的域中。通常需要考虑到速度和碰撞率之间的权衡。</li>
+<li><strong>Hashing Scheme</strong>: 如何处理key映射之后产生的碰撞。 需要在分配一个大的hash table来减少碰撞和执行额外的操作来查找和插入keys之间进行权衡。</li>
+</ul>
+<h3 id="hash-functions">Hash Functions</h3>
+<p>哈希函数接受一个key作为输入，然后返回一个该key的整数表示的值。函数的输出是确定的(如相同的key总是产生相同的哈希输出)。</p>
+<p>DBMS并不使用加密的哈希函数(如 SHA-256)，因为我们不需要考虑对键的内容进行保护。因为这些哈希函数主要作为系统内部使用，不用担心信息泄漏。</p>
+<p>当前的<code>state-of-the-art</code>哈希函数是<code>Facebook XXHash3</code></p>
+<p>集中哈希函数的性能比较
+<img src="https://verilyw.github.io/indexes/./2022-08-21_21-26.png" alt="" /></p>
+<h3 id="jing-tai-hashing-scheme">静态Hashing Scheme</h3>
+<p>静态哈希方案是一种哈希表大小固定的应用方案。意味着如果DBMS用完了哈希表中的存储空间，那么他需要用一个更大的表重新进行构建。通常新表的大小是原来的两倍。</p>
+<p>主要介绍三种方案：</p>
+<ol>
+<li><code>linear probe hashing</code></li>
+<li><code>robin hood hashing</code></li>
+<li><code>cuckoo hashing</code></li>
+</ol>
+<h4 id="linear-probe-hashing">Linear Probe Hashing</h4>
+<p>所有元素都存放在哈希表的数组中，不使用额外的数据结构。</p>
+<p>线性探查(linear probe)是开发寻址法的最简单一种实现。步骤如下：</p>
+<ol>
+<li>插入新元素时，使用哈希函数在哈希表中定位元素位置。</li>
+<li>检查哈希表中该位置是否存在元素，如果为空，插入并返回，否则进行步骤3</li>
+<li>如果该位置为<code>i</code>, 检查<code>i+1</code>是否为空，如果已被占用，则继续检查<code>i+2</code>的位置，依次类推，直到找到一个空的位置。</li>
+</ol>
+<p>这种方式的缺点是会导致同类哈希的聚类(prmary clustering)。</p>
+<h4 id="robin-hood-hashing">Robin Hood Hashing</h4>
+<p>这是线性探查的一种扩展。寻求减少每个键在哈希表中的最佳位置到它们的最大距离。</p>
+<p>记录每个key到其最优插入位置的探查长度。当插入一个新元素时，在探查的过程中，如果插入的元素的探查长度大于当前元素的探查长度时，那么交换这两个元素(以及探查长度)，然后继续探查。</p>
+<p>探查长度更加平均，所以期望最长的探查长度也会显著下降。故这也是罗宾汉这个名字的由来，劫富济贫。</p>
+<h4 id="cuckoo-hashing">Cuckoo Hashing</h4>
+<p>与之前使用单个哈希表的方案不同，这种方案使用不同的哈希函数维护多个哈希表。哈希函数是相同的(如 XXHash, CityHash)，它们使用不同的种子值对同一个key对应生成不同的哈希值。</p>
+<p>在多个表中查找空闲的位置。因为每个哈希表只检查一个位置，所以查找和删除始终为O(1).</p>
+<p>在插入时，检查每个表并选择任何有空闲插槽的表。</p>
+<p>如果没有表有空闲插槽，则从其中一个删除该元素，然后重新哈希它寻找新的空闲位置。方式如下：
+<img src="https://verilyw.github.io/indexes/./2022-08-21_22-06.png" alt="" />
+<img src="https://verilyw.github.io/indexes/./2022-08-21_22-06_1.png" alt="" />
+<img src="https://verilyw.github.io/indexes/./2022-08-21_22-07.png" alt="" />
+<img src="https://verilyw.github.io/indexes/./2022-08-21_22-07_1.png" alt="" /></p>
+<h3 id="dong-tai-hashing-scheme">动态Hashing Scheme</h3>
+<p>类比c++中的数组和向量类型。动态哈希模式能够在不需要重建整个哈希表的情况下自动调整哈希表大小。</p>
+<p>主要介绍三种方案：</p>
+<ol>
+<li><code>chained hashing</code></li>
+<li><code>extendible hashing</code></li>
+<li><code>linear hashing</code></li>
+</ol>
+<h4 id="chained-hashing">Chained Hashing</h4>
+<p>这是最常使用的一种动态哈希方案。在每个哈希表中的<code>slot</code>中维护一个链表的<code>buckets</code>。</p>
+<p>通过将相同hash的key的元素放到同一个<code>bucket</code>中解决冲突。
+如果存储桶已满，则添加一个另外一个存储桶列表。理论上是可以无限增长的。</p>
+<p>处理并发时，在每个<code>bucket</code>上设置一个<code>latch</code>（mutex)。</p>
+<p><img src="https://verilyw.github.io/indexes/./2022-08-22_10-22.png" alt="" /></p>
+<h4 id="extendible-hashing">Extendible Hashing</h4>
+<p><a href="https://www.alexdelis.eu/M149/p315-fagin.pdf">论文链接</a></p>
+<p>链式哈希的改进变体，可以拆分桶，而不是让链永远增长。这种方法允许哈希表多个槽(slot)指向同一个<code>bucket chain</code>。</p>
+<p>核心思想就是前缀树与哈希结合的概念。由两部分组成：目录和叶子节点，每个叶子节点也叫做一个<code>bucket</code>。</p>
+<p>重新平衡哈希表的核心思想在拆分时移动<code>bucket entries</code>并增加要检查的比特位数以在哈希表中查找。这意味着DBMS只需在拆分链的桶内移动数据，所有其他桶保持不变。</p>
+<p>首先这里的hash函数是根据前几位去分bucket, 有一个全局的depth和每个bucket有一个局部的depth。depth就是表示是多少位的意思。如用2位分bucket，目录大小是4，不够了用3位去分bucket，目录大小是8。</p>
+<p>全局的depth就代表当前的目录是用多少位分成的。局部的depth是个标识，表示这个bucket用的是几位</p>
+<p><img src="https://verilyw.github.io/indexes/./2022-08-22_11-13.png" alt="" />
+<img src="https://verilyw.github.io/indexes/./2022-08-22_11-13_1.png" alt="" />
+<img src="https://verilyw.github.io/indexes/./2022-08-22_11-13_2.png" alt="" /></p>
+<h4 id="linear-hashing">Linear Hashing</h4>
+<p>这个思路也是逐步地分裂bucket。</p>
+<p>基本思想：</p>
+<p>假设初始bucket数是4，,按照4取模分bucket。</p>
+<p>如果某个bucket满了，怎么处理？</p>
+<p>首先把overflow的数据用一个临时的bucket存起来。
+<img src="https://verilyw.github.io/indexes/./2022-08-22_12-41.png" alt="" />
+<img src="https://verilyw.github.io/indexes/./2022-08-22_12-41_1.png" alt="" /></p>
+<p>接着做bucket分裂，这里的bucket过程是逐步完成的，最终达到bucket翻倍。
+这里注意<code>split pointer</code>，它是按顺序分裂，分裂也是按分裂点的那个桶进行分裂的，而不是从溢出的那个桶进行分裂。分裂后，<code>split pointer</code>后移一位，一次分裂结束。</p>
+<p><img src="https://verilyw.github.io/indexes/./2022-08-22_12-51.png" alt="" /></p>
+<p>对于key的计算，在分裂点之前表示已经分裂的，所以用<code>hash2</code>计算，在之后的也就是没有进行分裂的，用<code>hash1</code>计算。</p>
+<p><img src="https://verilyw.github.io/indexes/./2022-08-22_12-55.png" alt="" /></p>
+<h2 id="tree-indexes">Tree indexes</h2>
+<p>对于数据库而言，使用树系列，二叉树，红黑树，B树，B+树等，因为要考虑到range查询，所以哈希索引不行。</p>
+<h3 id="table-indexes">Table indexes</h3>
+<p>对于<code>table indexes</code>而言，其可能会涉及到范围扫描查询。英文是这么描述，
+<code>A table index is a replica of a subset of a table's columns that is organized and/or sorted for efficient access using a subset of those attribute.</code></p>
+<h3 id="b-tree">B+Tree</h3>
+<p>b+树是一种自平衡的树。</p>
+<p>我们说的BTree, 往往说的都是B+Tree。B-tree和B+tree的区别就在于<code>inner node</code>是否存储数据。</p>
+<p><img src="https://verilyw.github.io/indexes/./2022-08-25_21-08.png" alt="" /></p>
+<p><strong>B+Tree有如下特性</strong>：</p>
+<ul>
+<li><code>M-way</code>而非二叉，有效降低树高。</li>
+<li>每一个<code>inner node</code>至少是half-full，<strong>M/2-1 &lt;= #keys &lt;= M-1</strong>。这样提高读取效率，读取一个节点，往往是一个page,可以读取尽可能多的数据。</li>
+<li><code>inner node</code>, 对于<code>k</code>个keys，要有<code>k+1</code>个非null子节点。</li>
+</ul>
+<p><img src="https://verilyw.github.io/indexes/./2022-8-25-21-14.png" alt="" /></p>
+<p><strong>B+树的结构</strong></p>
+<p>如上图一所示，其节点分为</p>
+<ul>
+<li><code>inner node</code></li>
+<li><code>leaf node</code></li>
+</ul>
+<p>每一个b+树的节点都是由一个key/value对的数组组成。</p>
+<p><code>inner node</code>只有索引，而<code>leaf node</code>包含真实的数据，同时还有<code>sibling pointers</code>，这是为了更有效的range查询。</p>
+<p>通常这些数组通过key进行排序。</p>
+<p><code>Leaf Node</code>的结构如下：
+<img src="https://verilyw.github.io/indexes/./1.png" alt="" />
+<img src="https://verilyw.github.io/indexes/./2.png" alt="" /></p>
+<p>两种不同的kv存储方式，这里的pageID需要理解一下，因为往往B+树的一个节点相当于一个page，所以跳到下一个节点就是跳到另外一个page。</p>
+<p>Leaf节点的内容(value)也分两种：</p>
+<ul>
+<li>Record Ids</li>
+<li>Tuple Data</li>
+</ul>
+<p><img src="https://verilyw.github.io/indexes/./2022-08-25_21-31.png" alt="" /></p>
+<p><strong>B+树的插入和删除</strong></p>
+<p>插入的关键是如果节点满了，需要分裂，分裂完了要把<code>middle key</code>放到上一层节点中做索引，如果上一层也满了，就需要进一步分裂。
+<img src="https://verilyw.github.io/indexes/./2022-08-25_21-45.png" alt="" /></p>
+<p>删除的关键是如果删除后，节点小于half-full了，需要先试图从sibling去借一些key达到half-full, 如果sibling也达不到half-full，那就合并。
+<img src="https://verilyw.github.io/indexes/./2022-08-25_21-45_1.png" alt="" /></p>
+<p><strong>变长keyss</strong></p>
+<ul>
+<li>指针：存储键作为元组属性的指针(很少使用)</li>
+<li>可变长度节点：B+树中每个节点的大小可能不同，但需要仔细的内存管理。这种方法也很少使用。</li>
+<li>键映射：嵌入一组指针，指针是映射到节点key+value。类似之前在存储部分讨论的slotted page。(常用方法)</li>
+</ul>
+<p><img src="https://verilyw.github.io/indexes/./2022-08-25_22-10.png" alt="" />
+<img src="https://verilyw.github.io/indexes/./2022-08-26_10-35.png" alt="" /></p>
+<p><strong>重复keys</strong></p>
+<p><img src="https://verilyw.github.io/indexes/./2022-08-25_22-14.png" alt="" /></p>
+<p><strong>节点内部的查找方法</strong></p>
+<p><img src="https://verilyw.github.io/indexes/./2022-08-26_10-31.png" alt="" /></p>
+<p><strong>B+树一些其他优化</strong></p>
+<p>前缀压缩，重复数据消除，批量插入。</p>
+<ul>
+<li>
+<p>前缀压缩指在一个叶子节点上，如果key拥有共同前最，可以提取出来，节约空间。
+<img src="https://verilyw.github.io/indexes/./2022-08-26_10-36.png" alt="" /></p>
+</li>
+<li>
+<p>重复数据消除指在非唯一索引中，在叶节点中存在相同的key对应多个值，可以把这些重复的key消除。
+<img src="https://verilyw.github.io/indexes/./2022-08-26_10-42.png" alt="" /></p>
+</li>
+<li>
+<p>批量插入，一个一个插入效率低，因为需要不断做分裂。高效的做法是，等插入了很多之后，一次性做一个B+树重建。</p>
+</li>
+</ul>
+<h4 id="cluster-indexes">Cluster Indexes</h4>
+<p>clustered indexes 是b+树的应用。在Innodb中，每个表都有一个聚簇索引，该索引是根据primary key对行记录生成的b+树索引，如果没有primary key，会自动生成自增id作为替代。叶子节点存放行数据，称之为数据页，故表中的数据也树聚簇索引中的一部分，数据页通过一个双向链表连接。</p>
+<p>除了clustered Indexes以外，都称为Secondary Indexes，与聚簇索引的区别在于辅助索引的叶子节点中存放的是主键的键值，clustered indexes只有一个，但辅助索引可以有多个。因此，通过辅助索引只能查到主键id，如果要读到数据，还需要查一次聚簇索引，好处是辅助索引不包含数据，所以远小于聚簇索引，查询效率高。</p>
+<p>可以用一列，或者多列来创建辅助索引，称为联合索引，联合索引和普通索引的结构没什么不同，只是会在节点中同时记录下多个列的值，遵循最左原则，先按第一个列排序，再按第二列排，依次下去。因此，查询条件也需要遵循最左原则。</p>
+<p><img src="https://verilyw.github.io/indexes/./3.png" alt="" /></p>
+<h4 id="additional-index-usage">Additional Index Usage</h4>
+<p>除了常规索引外，DBMS还存在许多额外的索引方法。</p>
+<ul>
+<li>隐式索引(Implicit Indexes): 大多数DBMS都会自动创建一个索引，保证完整性约束。(e.g., primary key, unique constraints) </li>
+<li>部分索引(Partial Indexes): 对整个表的子集创建索引。这减少了相应的开销和大小。</li>
+<li>Convering Indexes</li>
+<li>Index Include Columns</li>
+<li>Functions/Expression Indexes</li>
+</ul>
+<h3 id="skiplist-tiao-biao">SkipList（跳表）</h3>
+<p><a href="https://en.wikipedia.org/wiki/Skip_list">wiki</a> &amp; 
+<a href="http://dl.acm.org/citation.cfm?id=78977">paper</a></p>
+<p>如果用有序数组来实现索引，可以用简单的二分，但是插入和删除会比较麻烦。最简单的方法实现动态保存的index是使用有序链表，但链表只支持线性搜索，时间复杂度为O(n)。如何让链表也能二分查找，提高查询效率，这就是skip list.</p>
+<p><img src="https://verilyw.github.io/indexes/./4.png" alt="" /></p>
+<p>跳表的数据存放在第一层，上面的都是索引，这样避免一个个遍历，越往上层建的索引越稀疏，总之是为了模拟出二分，用空间换时间，因此时间复杂度近似O(log(n)).</p>
+<ul>
+<li>跳表的插入</li>
+</ul>
+<p>如下图，插入(k5,v5)，这里如何建立索引？即要把k5加到哪几层去。</p>
+<p>答案是flip coin(一个伯努力过程)。连续抛硬币，连续出现的正面的次数为k，我们就会对k层建立索引，如果k大于当前最大的level，就需要建立新的level。这样做有两个好处，因为伯努力过程，所以自然越高的level出现的概率越低，以<code>1/2</code>降低，并且插入的数据越多，出现较大k的概率越大。</p>
+<p><img src="https://verilyw.github.io/indexes/./5.png" alt="" /></p>
+<ul>
+<li>跳表查询</li>
+</ul>
+<p>查询以二分的思路就行。
+<img src="https://verilyw.github.io/indexes/./6.webp" alt="" /></p>
+<ul>
+<li>跳表删除</li>
+</ul>
+<p>关键需要一个标识，先逻辑删除，再物理删除。</p>
+<p><img src="https://verilyw.github.io/indexes/./6.png" alt="" /></p>
+<p>跳表的优点，相对b+树更节约内存，不需要rebalance。</p>
+<p>缺点是对缓存不友好，因为是链表的关系。其次是反向查找不方便。</p>
+<h3 id="radix-tree-ji-shu-shu">Radix tree(基数树)</h3>
+<p>在b+树中，<code>inner node keys</code>并不会告诉你你要找的key是否存在，因此，你必须遍历到<code>leaf node</code>。这意味着，在树中的每个层上至少有一个buffer pool page未命中，只是为了发现某个key不存在。</p>
+<p>使用trie tree对key进行表示，这样就不用比较整个key。</p>
+<p>核心思路，前缀树(trie tree)，节点的path就代表key，可以reconstructed.
+<img src="https://verilyw.github.io/indexes/./2022-08-29_14-29.png" alt="" /></p>
+<p>树高取决于key的length，而不是key的多少，key增多，那么表示key的length肯定会变长，也不需要rebalance.</p>
+<p>Radix Tree和Trie Tree的区别，Radix只有共享的才需要单独的节点。</p>
+<p><img src="https://verilyw.github.io/indexes/./2022-08-29_14-31.png" alt="" /></p>
+<p>Radix的有点就是插入和删除很简单。</p>
+<p><img src="https://verilyw.github.io/indexes/./7.png" alt="" /></p>
+</div>
+  <div class="post-footer">
+    <div class="meta">
+      <div class="info">
+        
+          <i class="far fa-sun"></i><span class="date">2022-08-21</span>
+        
+        
+          <i class="fas fa-tags"></i>
+          
+            <a class="tag" href="https://verilyw.github.io/tags/hash">&nbsp;hash</a>
+          
+            <a class="tag" href="https://verilyw.github.io/tags/database">&nbsp;database</a>
+          
+            <a class="tag" href="https://verilyw.github.io/tags/cmu15-455">&nbsp;cmu15-455</a>
+          
+            <a class="tag" href="https://verilyw.github.io/tags/B+Tree">&nbsp;B+Tree</a>
+          
+            <a class="tag" href="https://verilyw.github.io/tags/indexes">&nbsp;indexes</a>
+          
+        
+      </div>
+    </div>
+  </div>
+</article>
+<div class="share">
+  <div class="weibo">
+    <a class="fab fa-weibo" href="javascript:void((function(s,d,e){try{}catch(e){}var f='http://service.weibo.com/share/share.php?',u=d.location.href,p=['url=',e(u),'&title=',e(d.title),'&appkey=2924220432'].join('');function a(){if(!window.open([f,p].join(''),'mb',['toolbar=0,status=0,resizable=1,width=620,height=450,left=',(s.width-620)/2,',top=',(s.height-450)/2].join('')))u.href=[f,p].join('');};if(/Firefox/.test(navigator.userAgent)){setTimeout(a,0)}else{a()}})(screen,document,encodeURIComponent));"></a>
+  </div>
+  <div class="twitter">
+    <a class="fab fa-twitter" href="http://twitter.com/share?text=cmu15-455 Indexes&url=https:&#x2F;&#x2F;verilyw.github.io&#x2F;indexes&hashtags=hash,database,cmu15-455,B+Tree,indexes"></a>
+  </div>
+</div>
+
+
+
+
+
+
+
+<script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+<script>
+  MathJax = {
+    tex: {
+      displayMath: [['$$', '$$'], ["\\[", "\\]"]],
+      inlineMath: [['$', '$'], ['\\(', '\\)']]
+    }
+  };
+</script>
+<script type="text/javascript" id="MathJax-script" async
+  src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js">
+</script>
+
+
+
+      </div>
+    </div>
+  </div>
+  
+  <script>
+    function showLanguages() {
+      let currentDisplay = document.getElementById("languages").style.display;
+      if (currentDisplay == 'none') {
+        document.getElementById("languages").style.display = 'block';
+      } else {
+        document.getElementById("languages").style.display = 'none';
+      }
+    }
+  </script>
+</body>
+
+</html>

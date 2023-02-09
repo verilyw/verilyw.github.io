@@ -1,0 +1,1099 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom" xml:lang="zh">
+	<title>W.&#x27;s blog</title>
+	<subtitle>all for free</subtitle>
+	<link href="https://verilyw.github.io/atom.xml" rel="self" type="application/atom+xml"/>
+  <link href="https://verilyw.github.io"/>
+	<generator uri="https://www.getzola.org/">Zola</generator>
+	<updated>2022-09-19T00:00:00+00:00</updated>
+	<id>https://verilyw.github.io/atom.xml</id>
+	<entry xml:lang="zh">
+		<title>c++ auto的问题</title>
+		<published>2022-09-19T00:00:00+00:00</published>
+		<updated>2022-09-19T00:00:00+00:00</updated>
+		<link rel="alternate" href="https://verilyw.github.io/auto-problem/" type="text/html"/>
+		<id>https://verilyw.github.io/auto-problem/</id>
+		<content type="html">&lt;p&gt;问题来源：&lt;&#x2F;p&gt;
+&lt;p&gt;写&lt;code&gt;Extendiable Hashing&lt;&#x2F;code&gt;的时候，打算将&lt;code&gt;Bucket&lt;&#x2F;code&gt;类中的底层容器用函数返回引用的方式暴露出来，对容器进行操作，然而因为使用了&lt;code&gt;auto&lt;&#x2F;code&gt;关键字，没注意细节，造成了不小的调试麻烦。&lt;&#x2F;p&gt;
+&lt;p&gt;代码片段如下：&lt;&#x2F;p&gt;
+&lt;pre data-lang=&quot;c++&quot; style=&quot;background-color:#2b303b;color:#6c7079;&quot; class=&quot;language-c++ &quot;&gt;&lt;code class=&quot;language-c++&quot; data-lang=&quot;c++&quot;&gt;&lt;span style=&quot;color:#abb2bf;&quot;&gt; &lt;&#x2F;span&gt;&lt;span style=&quot;color:#cd74e8;&quot;&gt;inline auto &lt;&#x2F;span&gt;&lt;span style=&quot;color:#5cb3fa;&quot;&gt;GetItems&lt;&#x2F;span&gt;&lt;span style=&quot;color:#abb2bf;&quot;&gt;() -&amp;gt; std::list&amp;lt;std::pair&amp;lt;K, V&amp;gt;&amp;gt; &lt;&#x2F;span&gt;&lt;span style=&quot;color:#adb7c9;&quot;&gt;&amp;amp; &lt;&#x2F;span&gt;&lt;span style=&quot;color:#abb2bf;&quot;&gt;{ &lt;&#x2F;span&gt;&lt;span style=&quot;color:#cd74e8;&quot;&gt;return&lt;&#x2F;span&gt;&lt;span style=&quot;color:#abb2bf;&quot;&gt; list_; }
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#abb2bf;&quot;&gt;
+&lt;&#x2F;span&gt;&lt;span style=&quot;font-style:italic;color:#5f697a;&quot;&gt;&#x2F;&#x2F;&#x2F; -----------------------
+&lt;&#x2F;span&gt;&lt;span style=&quot;font-style:italic;color:#5f697a;&quot;&gt;&#x2F;&#x2F; ....
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#abb2bf;&quot;&gt;
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#abb2bf;&quot;&gt;  &lt;&#x2F;span&gt;&lt;span style=&quot;color:#cd74e8;&quot;&gt;auto&lt;&#x2F;span&gt;&lt;span style=&quot;color:#abb2bf;&quot;&gt; new_bucket_x &lt;&#x2F;span&gt;&lt;span style=&quot;color:#adb7c9;&quot;&gt;=&lt;&#x2F;span&gt;&lt;span style=&quot;color:#abb2bf;&quot;&gt; std::make_shared&amp;lt;Bucket&amp;gt;(bucket_size_, local_depth &lt;&#x2F;span&gt;&lt;span style=&quot;color:#adb7c9;&quot;&gt;+ &lt;&#x2F;span&gt;&lt;span style=&quot;color:#db9d63;&quot;&gt;1&lt;&#x2F;span&gt;&lt;span style=&quot;color:#abb2bf;&quot;&gt;);
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#abb2bf;&quot;&gt;  &lt;&#x2F;span&gt;&lt;span style=&quot;color:#cd74e8;&quot;&gt;auto&lt;&#x2F;span&gt;&lt;span style=&quot;color:#abb2bf;&quot;&gt; new_bucket_y &lt;&#x2F;span&gt;&lt;span style=&quot;color:#adb7c9;&quot;&gt;=&lt;&#x2F;span&gt;&lt;span style=&quot;color:#abb2bf;&quot;&gt; std::make_shared&amp;lt;Bucket&amp;gt;(bucket_size_, local_depth &lt;&#x2F;span&gt;&lt;span style=&quot;color:#adb7c9;&quot;&gt;+ &lt;&#x2F;span&gt;&lt;span style=&quot;color:#db9d63;&quot;&gt;1&lt;&#x2F;span&gt;&lt;span style=&quot;color:#abb2bf;&quot;&gt;);
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#abb2bf;&quot;&gt;  &lt;&#x2F;span&gt;&lt;span style=&quot;color:#cd74e8;&quot;&gt;auto&lt;&#x2F;span&gt;&lt;span style=&quot;color:#adb7c9;&quot;&gt;&amp;amp;&lt;&#x2F;span&gt;&lt;span style=&quot;color:#abb2bf;&quot;&gt; new_items_x &lt;&#x2F;span&gt;&lt;span style=&quot;color:#adb7c9;&quot;&gt;=&lt;&#x2F;span&gt;&lt;span style=&quot;color:#abb2bf;&quot;&gt; new_bucket_x-&amp;gt;&lt;&#x2F;span&gt;&lt;span style=&quot;color:#eb6772;&quot;&gt;GetItems&lt;&#x2F;span&gt;&lt;span style=&quot;color:#abb2bf;&quot;&gt;();
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#abb2bf;&quot;&gt;  &lt;&#x2F;span&gt;&lt;span style=&quot;color:#cd74e8;&quot;&gt;auto&lt;&#x2F;span&gt;&lt;span style=&quot;color:#adb7c9;&quot;&gt;&amp;amp;&lt;&#x2F;span&gt;&lt;span style=&quot;color:#abb2bf;&quot;&gt; new_items_y &lt;&#x2F;span&gt;&lt;span style=&quot;color:#adb7c9;&quot;&gt;=&lt;&#x2F;span&gt;&lt;span style=&quot;color:#abb2bf;&quot;&gt; new_bucket_y-&amp;gt;&lt;&#x2F;span&gt;&lt;span style=&quot;color:#eb6772;&quot;&gt;GetItems&lt;&#x2F;span&gt;&lt;span style=&quot;color:#abb2bf;&quot;&gt;();
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#abb2bf;&quot;&gt;  &lt;&#x2F;span&gt;&lt;span style=&quot;color:#cd74e8;&quot;&gt;int&lt;&#x2F;span&gt;&lt;span style=&quot;color:#abb2bf;&quot;&gt; mask &lt;&#x2F;span&gt;&lt;span style=&quot;color:#adb7c9;&quot;&gt;=&lt;&#x2F;span&gt;&lt;span style=&quot;color:#abb2bf;&quot;&gt; bucket-&amp;gt;&lt;&#x2F;span&gt;&lt;span style=&quot;color:#eb6772;&quot;&gt;GetMask&lt;&#x2F;span&gt;&lt;span style=&quot;color:#abb2bf;&quot;&gt;();
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#abb2bf;&quot;&gt;  &lt;&#x2F;span&gt;&lt;span style=&quot;color:#cd74e8;&quot;&gt;auto&lt;&#x2F;span&gt;&lt;span style=&quot;color:#abb2bf;&quot;&gt; it &lt;&#x2F;span&gt;&lt;span style=&quot;color:#adb7c9;&quot;&gt;= &lt;&#x2F;span&gt;&lt;span style=&quot;color:#abb2bf;&quot;&gt;std::&lt;&#x2F;span&gt;&lt;span style=&quot;color:#eb6772;&quot;&gt;partition&lt;&#x2F;span&gt;&lt;span style=&quot;color:#abb2bf;&quot;&gt;(items.&lt;&#x2F;span&gt;&lt;span style=&quot;color:#eb6772;&quot;&gt;begin&lt;&#x2F;span&gt;&lt;span style=&quot;color:#abb2bf;&quot;&gt;(), items.&lt;&#x2F;span&gt;&lt;span style=&quot;color:#eb6772;&quot;&gt;end&lt;&#x2F;span&gt;&lt;span style=&quot;color:#abb2bf;&quot;&gt;(), [mask](&lt;&#x2F;span&gt;&lt;span style=&quot;color:#cd74e8;&quot;&gt;auto &lt;&#x2F;span&gt;&lt;span style=&quot;color:#adb7c9;&quot;&gt;&amp;amp;&lt;&#x2F;span&gt;&lt;span style=&quot;color:#abb2bf;&quot;&gt;p) { &lt;&#x2F;span&gt;&lt;span style=&quot;color:#cd74e8;&quot;&gt;return &lt;&#x2F;span&gt;&lt;span style=&quot;color:#abb2bf;&quot;&gt;std::&lt;&#x2F;span&gt;&lt;span style=&quot;color:#eb6772;&quot;&gt;hash&lt;&#x2F;span&gt;&lt;span style=&quot;color:#abb2bf;&quot;&gt;&amp;lt;K&amp;gt;()(p.&lt;&#x2F;span&gt;&lt;span style=&quot;color:#eb6772;&quot;&gt;first&lt;&#x2F;span&gt;&lt;span style=&quot;color:#abb2bf;&quot;&gt;) &lt;&#x2F;span&gt;&lt;span style=&quot;color:#adb7c9;&quot;&gt;&amp;amp;&lt;&#x2F;span&gt;&lt;span style=&quot;color:#abb2bf;&quot;&gt; mask; });
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#abb2bf;&quot;&gt;  std::&lt;&#x2F;span&gt;&lt;span style=&quot;color:#5cb3fa;&quot;&gt;copy&lt;&#x2F;span&gt;&lt;span style=&quot;color:#abb2bf;&quot;&gt;(std::&lt;&#x2F;span&gt;&lt;span style=&quot;color:#eb6772;&quot;&gt;begin&lt;&#x2F;span&gt;&lt;span style=&quot;color:#abb2bf;&quot;&gt;(items), &lt;&#x2F;span&gt;&lt;span style=&quot;color:#eb6772;&quot;&gt;it&lt;&#x2F;span&gt;&lt;span style=&quot;color:#abb2bf;&quot;&gt;, std::&lt;&#x2F;span&gt;&lt;span style=&quot;color:#eb6772;&quot;&gt;back_inserter&lt;&#x2F;span&gt;&lt;span style=&quot;color:#abb2bf;&quot;&gt;(new_items_x));
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#abb2bf;&quot;&gt;  std::&lt;&#x2F;span&gt;&lt;span style=&quot;color:#5cb3fa;&quot;&gt;copy&lt;&#x2F;span&gt;&lt;span style=&quot;color:#abb2bf;&quot;&gt;(&lt;&#x2F;span&gt;&lt;span style=&quot;color:#eb6772;&quot;&gt;it&lt;&#x2F;span&gt;&lt;span style=&quot;color:#abb2bf;&quot;&gt;, std::&lt;&#x2F;span&gt;&lt;span style=&quot;color:#eb6772;&quot;&gt;end&lt;&#x2F;span&gt;&lt;span style=&quot;color:#abb2bf;&quot;&gt;(items), std::&lt;&#x2F;span&gt;&lt;span style=&quot;color:#eb6772;&quot;&gt;back_inserter&lt;&#x2F;span&gt;&lt;span style=&quot;color:#abb2bf;&quot;&gt;(new_items_y));
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#abb2bf;&quot;&gt;
+&lt;&#x2F;span&gt;&lt;span style=&quot;font-style:italic;color:#5f697a;&quot;&gt;&#x2F;&#x2F; ....
+&lt;&#x2F;span&gt;&lt;&#x2F;code&gt;&lt;&#x2F;pre&gt;
+&lt;p&gt;这里的逻辑主要是以某种方式对items分类，然后将分类后元素插入两个新的bucket中。开始使用直接在&lt;code&gt;new_items_*&lt;&#x2F;code&gt;变量使用&lt;code&gt;auto&lt;&#x2F;code&gt;，并没有加上&lt;code&gt;&amp;amp;&lt;&#x2F;code&gt;，这就造成了语义的变化，本来的目的是引用，由于没有使用&lt;code&gt;auto&amp;amp;&lt;&#x2F;code&gt;变成了拷贝。&lt;&#x2F;p&gt;
+&lt;h1 id=&quot;shi-li&quot;&gt;实例&lt;&#x2F;h1&gt;
+&lt;p&gt;不加&lt;code&gt;&amp;amp;&lt;&#x2F;code&gt;符号，auto会推导成&lt;code&gt;std::list&amp;lt;int&amp;gt;&lt;&#x2F;code&gt;值类型，因此变成了拷贝。&lt;&#x2F;p&gt;
+&lt;p&gt;&lt;img src=&quot;https:&#x2F;&#x2F;verilyw.github.io&#x2F;auto-problem&#x2F;.&#x2F;2022-09-21_18-35.png&quot; alt=&quot;&quot; &#x2F;&gt;&lt;&#x2F;p&gt;
+&lt;p&gt;加上&lt;code&gt;&amp;amp;&lt;&#x2F;code&gt;，即变成了引用类型，&lt;code&gt;std::list&amp;lt;int&amp;gt;&amp;amp;&lt;&#x2F;code&gt;。&lt;&#x2F;p&gt;
+&lt;p&gt;&lt;img src=&quot;https:&#x2F;&#x2F;verilyw.github.io&#x2F;auto-problem&#x2F;.&#x2F;2022-09-21_18-39.png&quot; alt=&quot;&quot; &#x2F;&gt;&lt;&#x2F;p&gt;
+</content>
+	</entry>
+	<entry xml:lang="zh">
+		<title>初始化初探</title>
+		<published>2022-09-02T00:00:00+00:00</published>
+		<updated>2022-09-02T00:00:00+00:00</updated>
+		<link rel="alternate" href="https://verilyw.github.io/22-9-2/" type="text/html"/>
+		<id>https://verilyw.github.io/22-9-2/</id>
+		<content type="html">&lt;p&gt;本文主要探索c++中全局变量和静态变量(这里指Non-local varibales)初始化的问题。包括&lt;&#x2F;p&gt;
+&lt;ul&gt;
+&lt;li&gt;什么时候进行初始化&lt;&#x2F;li&gt;
+&lt;li&gt;如何进行初始化&lt;&#x2F;li&gt;
+&lt;&#x2F;ul&gt;
+&lt;h3 id=&quot;shi-yao-shi-hou-jin-xing-chu-shi-hua&quot;&gt;什么时候进行初始化&lt;&#x2F;h3&gt;
+&lt;p&gt;依据c++标准，全局变量的初始化在&lt;code&gt;main&lt;&#x2F;code&gt;之前完成，那么&lt;code&gt;main&lt;&#x2F;code&gt;函数执行之前具体是什么时候呢？编译期还是运行时？&lt;&#x2F;p&gt;
+&lt;p&gt;答案是既有在编译期，也可能会有在运行时。&lt;&#x2F;p&gt;
+&lt;h3 id=&quot;ru-he-jin-xing-chu-shi-hua&quot;&gt;如何进行初始化&lt;&#x2F;h3&gt;
+&lt;p&gt;参考&lt;a href=&quot;https:&#x2F;&#x2F;en.cppreference.com&#x2F;w&#x2F;cpp&#x2F;language&#x2F;initialization&quot;&gt;cppreference&lt;&#x2F;a&gt;所说，所有具有&lt;code&gt;static duration&lt;&#x2F;code&gt;的非局部变量的初始化会作为程序启动的一部分，在&lt;code&gt;main&lt;&#x2F;code&gt;函数执行之前进行（除非被延迟）。所有具有线程局部存储期的非局部变量的初始化会作为线程启动的一部分进行，按顺序早于线程函数执行开始。对于这两种变量，初始化发生于两个截然不同的阶段：&lt;&#x2F;p&gt;
+&lt;p&gt;&lt;strong&gt;静态初始化(static intialization)&lt;&#x2F;strong&gt;：&lt;&#x2F;p&gt;
+&lt;p&gt;指用常量来对变量进行初始化，主要包括两种形式，&lt;code&gt;zero initialization&lt;&#x2F;code&gt;和&lt;code&gt;const initialization&lt;&#x2F;code&gt;。如果可能，应用常量初始化，否则，非局部静态和线程局部变量都会零初始化。&lt;&#x2F;p&gt;
+&lt;ul&gt;
+&lt;li&gt;常量初始化通常在编译期进行。他的变量放在&lt;code&gt;data&lt;&#x2F;code&gt;段。&lt;&#x2F;li&gt;
+&lt;li&gt;零初始化的变量被放在程序的&lt;code&gt;bss&lt;&#x2F;code&gt;段。&lt;&#x2F;li&gt;
+&lt;&#x2F;ul&gt;
+&lt;p&gt;&lt;strong&gt;动态初始化(dynamic initialization)&lt;&#x2F;strong&gt;:&lt;&#x2F;p&gt;
+&lt;p&gt;指主要经过函数调用才能完成的初始化，如&lt;code&gt;auto x = foo()&lt;&#x2F;code&gt;, 或者是复杂类型（类）的初始化（需要调用构造函数）等。这些变量的初始化会在&lt;code&gt;main&lt;&#x2F;code&gt;函数执行前有运行时调用相应的代码（函数内的static除外）。&lt;&#x2F;p&gt;
+&lt;p&gt;值得注意的是，&lt;strong&gt;在所有静态初始化完成后，才进行动态初始化&lt;&#x2F;strong&gt;。这个原因也很直接，能静态初始化的变量，它的初始值都是在编译期就能确定下来，因此，可以直接hard core到生成代码里，而动态初始化需要在运行时执行相应的动作才能进行。&lt;&#x2F;p&gt;
+&lt;h4 id=&quot;can-kao&quot;&gt;参考&lt;&#x2F;h4&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;a href=&quot;https:&#x2F;&#x2F;zh.cppreference.com&#x2F;w&#x2F;cpp&#x2F;language&#x2F;initialization&quot;&gt;cppreference&lt;&#x2F;a&gt;&lt;&#x2F;li&gt;
+&lt;li&gt;&lt;a href=&quot;https:&#x2F;&#x2F;www.cnblogs.com&#x2F;catch&#x2F;p&#x2F;4314256.html&quot;&gt;相关blog&lt;&#x2F;a&gt;&lt;&#x2F;li&gt;
+&lt;&#x2F;ul&gt;
+</content>
+	</entry>
+	<entry xml:lang="zh">
+		<title>cmu15-455 Index Concurrency Control</title>
+		<published>2022-08-29T00:00:00+00:00</published>
+		<updated>2022-08-29T00:00:00+00:00</updated>
+		<link rel="alternate" href="https://verilyw.github.io/index-concorrency/" type="text/html"/>
+		<id>https://verilyw.github.io/index-concorrency/</id>
+		<content type="html">&lt;p&gt;本节讨论多线程下，如何并发地访问索引。&lt;&#x2F;p&gt;
+&lt;p&gt;在DBMS中，&lt;strong&gt;concurrency control&lt;&#x2F;strong&gt;通常是一种方法，用于在并发操作共享对象时保证“正确性“结果。&lt;&#x2F;p&gt;
+&lt;p&gt;然而正确性的标准也是多样的&lt;&#x2F;p&gt;
+&lt;ul&gt;
+&lt;li&gt;Logical Correctness: Can I see the data that I am supposed to see?&lt;&#x2F;li&gt;
+&lt;li&gt;Physical Correctness: Is the internal representation of the object sound?&lt;&#x2F;li&gt;
+&lt;&#x2F;ul&gt;
+&lt;p&gt;其中&lt;code&gt;logical correctness&lt;&#x2F;code&gt;主要指应用层的事务等。&lt;&#x2F;p&gt;
+&lt;p&gt;在这里主要讨论的是&lt;code&gt;Physical correctness&lt;&#x2F;code&gt;, 内部数据结构的并发访问。&lt;&#x2F;p&gt;
+&lt;p&gt;在数据库领域，这里做一下&lt;code&gt;lock&lt;&#x2F;code&gt;和&lt;code&gt;latch&lt;&#x2F;code&gt;的区别，latch其实才是我们在并发编程中所熟悉的锁的概念，而lock是在处理DBMS并发控制，如事务处理中用到的概念。
+因此，讨论内部数据结构的并发控制，用的是latch.&lt;&#x2F;p&gt;
+&lt;p&gt;&lt;img src=&quot;https:&#x2F;&#x2F;verilyw.github.io&#x2F;index-concorrency&#x2F;.&#x2F;2022-08-29_15-50.png&quot; alt=&quot;&quot; &#x2F;&gt;&lt;&#x2F;p&gt;
+&lt;p&gt;latch可以分为两种模式，读和写。从下表中可以看出，要解决的冲突是读写冲突，而读读是没有冲突的。&lt;&#x2F;p&gt;
+&lt;p&gt;&lt;img src=&quot;https:&#x2F;&#x2F;verilyw.github.io&#x2F;index-concorrency&#x2F;.&#x2F;2022-08-29_15-54.png&quot; alt=&quot;&quot; &#x2F;&gt;&lt;&#x2F;p&gt;
+&lt;p&gt;&lt;strong&gt;DBMS中的Latch&lt;&#x2F;strong&gt;&lt;&#x2F;p&gt;
+&lt;p&gt;现代CPU硬件都提供了关于实现latch的原语指令，如&lt;code&gt;compare-and-swap&lt;&#x2F;code&gt;(CAS)。这里简要介绍一下DBMS实现latch的几种方法。&lt;&#x2F;p&gt;
+&lt;ol&gt;
+&lt;li&gt;借助操作系统内部构建的mutex（如linux的futex)。&lt;&#x2F;li&gt;
+&lt;&#x2F;ol&gt;
+&lt;p&gt;这种方式因为借助了OS的管理，所以对与DBMS来说并不是好的idea，同时有很大的开销。&lt;&#x2F;p&gt;
+&lt;p&gt;&lt;code&gt;std::mutex&lt;&#x2F;code&gt;.&lt;&#x2F;p&gt;
+&lt;p&gt;优点是简单，缺点是开销和扩展性。&lt;&#x2F;p&gt;
+&lt;ol start=&quot;2&quot;&gt;
+&lt;li&gt;Test-and-Set Sping Latch(TAS)&lt;&#x2F;li&gt;
+&lt;&#x2F;ol&gt;
+&lt;p&gt;&lt;code&gt;test-and-set&lt;&#x2F;code&gt;也是硬件提供的一种并发原语。它对比使用OS内置的实现，由DBMS控制，所以更有效率。&lt;&#x2F;p&gt;
+&lt;p&gt;&lt;code&gt;std::atomic&amp;lt;T&amp;gt;&lt;&#x2F;code&gt;&lt;&#x2F;p&gt;
+&lt;p&gt;优点是latch&#x2F;unlatch更高效。缺点是扩展性和缓存不友好。&lt;&#x2F;p&gt;
+&lt;ol start=&quot;3&quot;&gt;
+&lt;li&gt;Reader-Writer Latch&lt;&#x2F;li&gt;
+&lt;&#x2F;ol&gt;
+&lt;p&gt;这就是所熟悉的读写锁，允许读者并发读，管理读写队列避免饥饿。其在自旋锁的基础上实现。&lt;&#x2F;p&gt;
+&lt;p&gt;优点是允许并发读。缺点是管理读写队列，大存储的开销很大。&lt;&#x2F;p&gt;
+&lt;h3 id=&quot;ha-xi-biao&quot;&gt;哈希表&lt;&#x2F;h3&gt;
+&lt;p&gt;在哈希表中主要有两种方法应对并发访问。&lt;&#x2F;p&gt;
+&lt;ul&gt;
+&lt;li&gt;Page Latches&lt;&#x2F;li&gt;
+&lt;&#x2F;ul&gt;
+&lt;p&gt;每个页拥有一个读写latch。线程在访问页时需要获取读或者写latch。这种方式降低了并行，因为可能只有一个进程在同一时间访问一个页.&lt;&#x2F;p&gt;
+&lt;ul&gt;
+&lt;li&gt;Slot Latches&lt;&#x2F;li&gt;
+&lt;&#x2F;ul&gt;
+&lt;p&gt;每个slot拥有一个latch。这增加了并行，因为两个线程能在同一个页中访问不同的slot。但是这也增加了存储和计算开销。&lt;&#x2F;p&gt;
+&lt;h3 id=&quot;b-shu&quot;&gt;B+树&lt;&#x2F;h3&gt;
+&lt;p&gt;这是数据库中主要的索引结构。解决访问冲突的方式称为，&lt;strong&gt;Latch carbbing&#x2F;coupling&lt;&#x2F;strong&gt;&lt;&#x2F;p&gt;
+&lt;p&gt;&lt;img src=&quot;https:&#x2F;&#x2F;verilyw.github.io&#x2F;index-concorrency&#x2F;.&#x2F;2022-08-29_16-32.png&quot; alt=&quot;&quot; &#x2F;&gt;&lt;&#x2F;p&gt;
+&lt;p&gt;读的处理比较简单，从root开始，只要能获取到child的latch，就可以释放parent。&lt;&#x2F;p&gt;
+&lt;p&gt;更新会复杂一些，因为当更新当前节点，可能导致split或者merge，这样父节点也要更新。所以同时获取父子两层的latch，只有当不会发生split或merge，不需要改动父节点的时候，才释放父节点的latch.&lt;&#x2F;p&gt;
+&lt;p&gt;&lt;img src=&quot;https:&#x2F;&#x2F;verilyw.github.io&#x2F;index-concorrency&#x2F;.&#x2F;2022-08-29_16-38.png&quot; alt=&quot;&quot; &#x2F;&gt;&lt;&#x2F;p&gt;
+&lt;ul&gt;
+&lt;li&gt;以删除为例，对于删除，我们需要考虑是否merge&lt;&#x2F;li&gt;
+&lt;&#x2F;ul&gt;
+&lt;p&gt;在B的时候，我们不能释放A的latch，因为只有一个35，可能在delete的过程中需要merge。
+但是到了C，C有38，44，删除一个也不会导致merge，所以可以释放A，B的latch.&lt;&#x2F;p&gt;
+&lt;p&gt;&lt;img src=&quot;https:&#x2F;&#x2F;verilyw.github.io&#x2F;index-concorrency&#x2F;.&#x2F;1.png&quot; alt=&quot;&quot; &#x2F;&gt;&lt;&#x2F;p&gt;
+&lt;p&gt;&lt;img src=&quot;https:&#x2F;&#x2F;verilyw.github.io&#x2F;index-concorrency&#x2F;.&#x2F;2.png&quot; alt=&quot;&quot; &#x2F;&gt;&lt;&#x2F;p&gt;
+&lt;p&gt;&lt;img src=&quot;https:&#x2F;&#x2F;verilyw.github.io&#x2F;index-concorrency&#x2F;.&#x2F;3.png&quot; alt=&quot;&quot; &#x2F;&gt;&lt;&#x2F;p&gt;
+&lt;ul&gt;
+&lt;li&gt;同样对于插入，我们要考虑是否split&lt;&#x2F;li&gt;
+&lt;&#x2F;ul&gt;
+&lt;p&gt;B的时候有一个空位，没有split风险，故可以释放A。到了D的时候，可能有split风险，故不能释放B，到I发现有空，故释放B，D.&lt;&#x2F;p&gt;
+&lt;p&gt;&lt;img src=&quot;https:&#x2F;&#x2F;verilyw.github.io&#x2F;index-concorrency&#x2F;.&#x2F;2022-08-29_16-54.png&quot; alt=&quot;&quot; &#x2F;&gt;&lt;&#x2F;p&gt;
+&lt;p&gt;&lt;img src=&quot;https:&#x2F;&#x2F;verilyw.github.io&#x2F;index-concorrency&#x2F;.&#x2F;2022-08-29_16-54_2.png&quot; alt=&quot;&quot; &#x2F;&gt;&lt;&#x2F;p&gt;
+&lt;p&gt;对于需split的插入列子，如下，到F的时候发现需要split，所以不能释放C，C也要增加节点。&lt;&#x2F;p&gt;
+&lt;p&gt;&lt;img src=&quot;https:&#x2F;&#x2F;verilyw.github.io&#x2F;index-concorrency&#x2F;.&#x2F;4.png&quot; alt=&quot;&quot; &#x2F;&gt;&lt;&#x2F;p&gt;
+&lt;p&gt;&lt;img src=&quot;https:&#x2F;&#x2F;verilyw.github.io&#x2F;index-concorrency&#x2F;.&#x2F;5.png&quot; alt=&quot;&quot; &#x2F;&gt;&lt;&#x2F;p&gt;
+&lt;p&gt;这个方法有个显著的问题，所有的更新第一步都是从root开始。
+root会成为明显的瓶颈，因为所有锁都要从root开始锁起。&lt;&#x2F;p&gt;
+&lt;p&gt;故可以进行优化&lt;&#x2F;p&gt;
+&lt;p&gt;&lt;img src=&quot;https:&#x2F;&#x2F;verilyw.github.io&#x2F;index-concorrency&#x2F;.&#x2F;2022-08-29_17-06.png&quot; alt=&quot;&quot; &#x2F;&gt;&lt;&#x2F;p&gt;
+&lt;p&gt;假设大部分更新是不需要split和merge的，否则效率反而更低了。如果不需要split和merge，就需要给parent加写latch。用读latch，首先避免了每次都在root写写冲突，因为读读是不冲突的，而且又保证了读写冲突，因为别人在更新使，你需要等待。&lt;&#x2F;p&gt;
+&lt;p&gt;&lt;a href=&quot;https:&#x2F;&#x2F;link.springer.com&#x2F;article&#x2F;10.1007&#x2F;BF00263762&quot;&gt;优化算法paper&lt;&#x2F;a&gt;&lt;&#x2F;p&gt;
+&lt;p&gt;&lt;strong&gt;Leaf Node Scan&lt;&#x2F;strong&gt;&lt;&#x2F;p&gt;
+&lt;p&gt;前面的latch都是top-down的方式，因为加锁方向一致，不会有环产生，所以不会产生死锁。&lt;&#x2F;p&gt;
+&lt;p&gt;但B+树在leaf node之间也是有指针的，这就会形成环。&lt;&#x2F;p&gt;
+&lt;p&gt;读的场景，不冲突&lt;&#x2F;p&gt;
+&lt;p&gt;&lt;img src=&quot;https:&#x2F;&#x2F;verilyw.github.io&#x2F;index-concorrency&#x2F;.&#x2F;6.png&quot; alt=&quot;&quot; &#x2F;&gt;&lt;&#x2F;p&gt;
+&lt;p&gt;写的场景，产生冲突&lt;&#x2F;p&gt;
+&lt;p&gt;T2冲突的时候，有两个选择，一个是等待，一个是自杀(防止死锁)，因为T2不知道T1在做啥，所以一个合理的方式是，等待一个timeout，然后自杀，这样可以有效避免死锁。&lt;&#x2F;p&gt;
+&lt;p&gt;&lt;img src=&quot;https:&#x2F;&#x2F;verilyw.github.io&#x2F;index-concorrency&#x2F;.&#x2F;7.png&quot; alt=&quot;&quot; &#x2F;&gt;&lt;&#x2F;p&gt;
+&lt;p&gt;&lt;strong&gt;延迟对parent更新&lt;&#x2F;strong&gt;&lt;&#x2F;p&gt;
+&lt;p&gt;&lt;img src=&quot;https:&#x2F;&#x2F;verilyw.github.io&#x2F;index-concorrency&#x2F;.&#x2F;2022-08-29_17-43.png&quot; alt=&quot;&quot; &#x2F;&gt;&lt;&#x2F;p&gt;
+&lt;p&gt;这样对parent更新可以批量，并且降低写latch的冲突概率。&lt;&#x2F;p&gt;
+&lt;p&gt;&lt;img src=&quot;https:&#x2F;&#x2F;verilyw.github.io&#x2F;index-concorrency&#x2F;.&#x2F;8.png&quot; alt=&quot;&quot; &#x2F;&gt;&lt;&#x2F;p&gt;
+&lt;p&gt;&lt;img src=&quot;https:&#x2F;&#x2F;verilyw.github.io&#x2F;index-concorrency&#x2F;.&#x2F;9.png&quot; alt=&quot;&quot; &#x2F;&gt;&lt;&#x2F;p&gt;
+&lt;p&gt;后续有线程单独进行更新parent&lt;&#x2F;p&gt;
+&lt;p&gt;&lt;img src=&quot;https:&#x2F;&#x2F;verilyw.github.io&#x2F;index-concorrency&#x2F;.&#x2F;10.png&quot; alt=&quot;&quot; &#x2F;&gt;&lt;&#x2F;p&gt;
+</content>
+	</entry>
+	<entry xml:lang="zh">
+		<title>Prject#1-Buffer Pool</title>
+		<published>2022-08-25T00:00:00+00:00</published>
+		<updated>2022-08-25T00:00:00+00:00</updated>
+		<link rel="alternate" href="https://verilyw.github.io/db-proj1/" type="text/html"/>
+		<id>https://verilyw.github.io/db-proj1/</id>
+		<content type="html">&lt;p&gt;本次实验前后花了两三天的时间吧。实验难度不高，不过一些细节需要把控好，然后就是多使用&lt;code&gt;LOG&lt;&#x2F;code&gt;进行调试。&lt;&#x2F;p&gt;
+&lt;p&gt;为了方便记忆和回过头查看，大致写个实验总结。(为遵循cmu的学术规则，总结不会贴代码)&lt;&#x2F;p&gt;
+&lt;h2 id=&quot;task-1-lru-replacement-policy&quot;&gt;TASK#1-LRU Replacement Policy&lt;&#x2F;h2&gt;
+&lt;p&gt;实现四个函数:&lt;&#x2F;p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;code&gt;Victim(frame_id_t*)&lt;&#x2F;code&gt;&lt;&#x2F;li&gt;
+&lt;li&gt;&lt;code&gt;Pin(frame_id_t)&lt;&#x2F;code&gt;&lt;&#x2F;li&gt;
+&lt;li&gt;&lt;code&gt;Unpin(frame_id_t)&lt;&#x2F;code&gt;&lt;&#x2F;li&gt;
+&lt;li&gt;&lt;code&gt;Size()&lt;&#x2F;code&gt;&lt;&#x2F;li&gt;
+&lt;&#x2F;ul&gt;
+&lt;p&gt;使用&lt;code&gt;lru&lt;&#x2F;code&gt;的策略进行替换。我们会维护一个&lt;code&gt;lru_list&lt;&#x2F;code&gt;的列表，这里主要是&lt;code&gt;pin&lt;&#x2F;code&gt;与&lt;code&gt;unpin&lt;&#x2F;code&gt;操作，&lt;code&gt;pin&lt;&#x2F;code&gt;操作其实可以简单实现为把当前的元素从表中移除出去(如果存在)，而&lt;code&gt;unpin&lt;&#x2F;code&gt;操作把元素加入表中(如果不存在), 如果存在，意味着我们再次访问了它。&lt;&#x2F;p&gt;
+&lt;h2 id=&quot;task-2-buffer-pool-manager-instance&quot;&gt;TASK#2 - Buffer Pool Manager Instance&lt;&#x2F;h2&gt;
+&lt;p&gt;这里最好理清楚buffer pool中每个item的一个状态。总的来说，可以用三个状态表示&lt;code&gt;Free&lt;&#x2F;code&gt;, &lt;code&gt;Pin&lt;&#x2F;code&gt;， &lt;code&gt;Unpin&lt;&#x2F;code&gt;。
+过程中维护好&lt;code&gt;meta-data&lt;&#x2F;code&gt;。&lt;&#x2F;p&gt;
+&lt;h2 id=&quot;task-3-parallel-buffer-pool-manager&quot;&gt;TASK#3 - Parallel Buffer Pool Manager&lt;&#x2F;h2&gt;
+&lt;p&gt;没啥可说的，按照提示就能搞定，注意在&lt;code&gt;new page&lt;&#x2F;code&gt;的时候使用什么调度。&lt;&#x2F;p&gt;
+</content>
+	</entry>
+	<entry xml:lang="zh">
+		<title>不同场景下C++对象的内存布局</title>
+		<published>2022-08-22T00:00:00+00:00</published>
+		<updated>2022-08-22T00:00:00+00:00</updated>
+		<link rel="alternate" href="https://verilyw.github.io/memory-layout-of-c/" type="text/html"/>
+		<id>https://verilyw.github.io/memory-layout-of-c/</id>
+		<content type="html">&lt;blockquote&gt;
+&lt;p&gt;本篇文章的内容大部分翻译自&lt;a href=&quot;http:&#x2F;&#x2F;www.vishalchovatiya.com&#x2F;memory-layout-of-cpp-object&#x2F;&quot;&gt;这篇博客&lt;&#x2F;a&gt;&lt;&#x2F;p&gt;
+&lt;&#x2F;blockquote&gt;
+&lt;p&gt;&lt;img src=&quot;https:&#x2F;&#x2F;secureservercdn.net&#x2F;160.153.138.178&#x2F;bkh.972.myftpupload.com&#x2F;wp-content&#x2F;uploads&#x2F;memory-layout-of-C-objects.png&quot; alt=&quot;&quot; &#x2F;&gt;&lt;&#x2F;p&gt;
+&lt;p&gt;本文，我们将看到不同c++对象的内存布局，以及不同的存储和访问说明符如何影响内存占用。&lt;&#x2F;p&gt;
+&lt;h2 id=&quot;jian-dan-dui-xiang&quot;&gt;简单对象&lt;&#x2F;h2&gt;
+&lt;p&gt;简单是指没有多态(没有虚函数)，同时也没有静态成员的单独类的一个对象。如下所示，&lt;&#x2F;p&gt;
+&lt;pre data-lang=&quot;c++&quot; style=&quot;background-color:#2b303b;color:#6c7079;&quot; class=&quot;language-c++ &quot;&gt;&lt;code class=&quot;language-c++&quot; data-lang=&quot;c++&quot;&gt;&lt;span style=&quot;color:#cd74e8;&quot;&gt;class &lt;&#x2F;span&gt;&lt;span style=&quot;color:#f0c678;&quot;&gt;X &lt;&#x2F;span&gt;&lt;span style=&quot;color:#adb7c9;&quot;&gt;{
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#adb7c9;&quot;&gt;    &lt;&#x2F;span&gt;&lt;span style=&quot;color:#cd74e8;&quot;&gt;int&lt;&#x2F;span&gt;&lt;span style=&quot;color:#adb7c9;&quot;&gt; x;
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#adb7c9;&quot;&gt;    &lt;&#x2F;span&gt;&lt;span style=&quot;color:#cd74e8;&quot;&gt;float&lt;&#x2F;span&gt;&lt;span style=&quot;color:#adb7c9;&quot;&gt; xx;
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#cd74e8;&quot;&gt;public&lt;&#x2F;span&gt;&lt;span style=&quot;color:#adb7c9;&quot;&gt;:
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#adb7c9;&quot;&gt;    &lt;&#x2F;span&gt;&lt;span style=&quot;color:#5cb3fa;&quot;&gt;X&lt;&#x2F;span&gt;&lt;span style=&quot;color:#adb7c9;&quot;&gt;() {}
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#adb7c9;&quot;&gt;    &lt;&#x2F;span&gt;&lt;span style=&quot;color:#5cb3fa;&quot;&gt;~X&lt;&#x2F;span&gt;&lt;span style=&quot;color:#adb7c9;&quot;&gt;() {}
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#adb7c9;&quot;&gt;
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#adb7c9;&quot;&gt;    &lt;&#x2F;span&gt;&lt;span style=&quot;color:#cd74e8;&quot;&gt;void &lt;&#x2F;span&gt;&lt;span style=&quot;color:#5cb3fa;&quot;&gt;printInt&lt;&#x2F;span&gt;&lt;span style=&quot;color:#adb7c9;&quot;&gt;() {}
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#adb7c9;&quot;&gt;    &lt;&#x2F;span&gt;&lt;span style=&quot;color:#cd74e8;&quot;&gt;void &lt;&#x2F;span&gt;&lt;span style=&quot;color:#5cb3fa;&quot;&gt;printFloat&lt;&#x2F;span&gt;&lt;span style=&quot;color:#adb7c9;&quot;&gt;() {}
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#adb7c9;&quot;&gt;}&lt;&#x2F;span&gt;&lt;span style=&quot;color:#abb2bf;&quot;&gt;;
+&lt;&#x2F;span&gt;&lt;&#x2F;code&gt;&lt;&#x2F;pre&gt;
+&lt;p&gt;其内存布局如下：&lt;&#x2F;p&gt;
+&lt;pre style=&quot;background-color:#2b303b;color:#6c7079;&quot;&gt;&lt;code&gt;&lt;span style=&quot;color:#abb2bf;&quot;&gt;      |                        |          
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#abb2bf;&quot;&gt;      |------------------------| &amp;lt;------ X class object memory layout
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#abb2bf;&quot;&gt;      |        int X::x        |
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#abb2bf;&quot;&gt;      |------------------------|  stack segment
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#abb2bf;&quot;&gt;      |       float X::xx      |       |   
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#abb2bf;&quot;&gt;      |------------------------|       |
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#abb2bf;&quot;&gt;      |                        |      \|&#x2F;
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#abb2bf;&quot;&gt;      |                        |    
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#abb2bf;&quot;&gt;      |                        |
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#abb2bf;&quot;&gt;------|------------------------|----------------
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#abb2bf;&quot;&gt;      |         X::X()         | 
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#abb2bf;&quot;&gt;      |------------------------|       |   
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#abb2bf;&quot;&gt;      |        X::~X()         |       |
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#abb2bf;&quot;&gt;      |------------------------|      \|&#x2F;
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#abb2bf;&quot;&gt;      |      X::printInt()     |  text segment
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#abb2bf;&quot;&gt;      |------------------------|
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#abb2bf;&quot;&gt;      |     X::printFloat()    |
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#abb2bf;&quot;&gt;      |------------------------|
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#abb2bf;&quot;&gt;      |                        |            
+&lt;&#x2F;span&gt;&lt;&#x2F;code&gt;&lt;&#x2F;pre&gt;
+&lt;p&gt;从上面的例子，我们可以看到只有类的&lt;code&gt;data members&lt;&#x2F;code&gt;放在栈上。同时，他们的声明顺序也是一致的。&lt;&#x2F;p&gt;
+&lt;p&gt;此外，所有的其他成员函数，构造函数，析构函数，以及&lt;a href=&quot;http:&#x2F;&#x2F;www.vishalchovatiya.com&#x2F;inside-the-cpp-object-model&#x2F;&quot;&gt;compiler augmented code&lt;&#x2F;a&gt;都是放在文本段中。这些成员函数在调用的时候，会隐式传入一个&lt;code&gt;this&lt;&#x2F;code&gt;指针作为其函数的第一个参数。&lt;&#x2F;p&gt;
+&lt;h2 id=&quot;ju-you-xu-han-shu-he-jing-tai-cheng-yuan-de-dui-xiang&quot;&gt;具有虚函数和静态成员的对象&lt;&#x2F;h2&gt;
+&lt;p&gt;因为引入了虚函数，故会对象中会存在一个虚指针表。&lt;&#x2F;p&gt;
+&lt;pre data-lang=&quot;c++&quot; style=&quot;background-color:#2b303b;color:#6c7079;&quot; class=&quot;language-c++ &quot;&gt;&lt;code class=&quot;language-c++&quot; data-lang=&quot;c++&quot;&gt;&lt;span style=&quot;color:#cd74e8;&quot;&gt;class &lt;&#x2F;span&gt;&lt;span style=&quot;color:#f0c678;&quot;&gt;X &lt;&#x2F;span&gt;&lt;span style=&quot;color:#adb7c9;&quot;&gt;{
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#adb7c9;&quot;&gt;    &lt;&#x2F;span&gt;&lt;span style=&quot;color:#cd74e8;&quot;&gt;int&lt;&#x2F;span&gt;&lt;span style=&quot;color:#adb7c9;&quot;&gt;         x;
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#adb7c9;&quot;&gt;    &lt;&#x2F;span&gt;&lt;span style=&quot;color:#cd74e8;&quot;&gt;float&lt;&#x2F;span&gt;&lt;span style=&quot;color:#adb7c9;&quot;&gt;       xx;
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#adb7c9;&quot;&gt;    &lt;&#x2F;span&gt;&lt;span style=&quot;color:#cd74e8;&quot;&gt;static int&lt;&#x2F;span&gt;&lt;span style=&quot;color:#adb7c9;&quot;&gt;  count;
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#adb7c9;&quot;&gt;
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#cd74e8;&quot;&gt;public&lt;&#x2F;span&gt;&lt;span style=&quot;color:#adb7c9;&quot;&gt;:
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#adb7c9;&quot;&gt;    &lt;&#x2F;span&gt;&lt;span style=&quot;color:#5cb3fa;&quot;&gt;X&lt;&#x2F;span&gt;&lt;span style=&quot;color:#adb7c9;&quot;&gt;() {}
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#adb7c9;&quot;&gt;    &lt;&#x2F;span&gt;&lt;span style=&quot;color:#cd74e8;&quot;&gt;virtual &lt;&#x2F;span&gt;&lt;span style=&quot;color:#5cb3fa;&quot;&gt;~X&lt;&#x2F;span&gt;&lt;span style=&quot;color:#adb7c9;&quot;&gt;() {}
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#adb7c9;&quot;&gt;
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#adb7c9;&quot;&gt;    &lt;&#x2F;span&gt;&lt;span style=&quot;color:#cd74e8;&quot;&gt;virtual void &lt;&#x2F;span&gt;&lt;span style=&quot;color:#5cb3fa;&quot;&gt;printAll&lt;&#x2F;span&gt;&lt;span style=&quot;color:#adb7c9;&quot;&gt;() {}
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#adb7c9;&quot;&gt;    &lt;&#x2F;span&gt;&lt;span style=&quot;color:#cd74e8;&quot;&gt;void &lt;&#x2F;span&gt;&lt;span style=&quot;color:#5cb3fa;&quot;&gt;printInt&lt;&#x2F;span&gt;&lt;span style=&quot;color:#adb7c9;&quot;&gt;() {}
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#adb7c9;&quot;&gt;    &lt;&#x2F;span&gt;&lt;span style=&quot;color:#cd74e8;&quot;&gt;void &lt;&#x2F;span&gt;&lt;span style=&quot;color:#5cb3fa;&quot;&gt;printFloat&lt;&#x2F;span&gt;&lt;span style=&quot;color:#adb7c9;&quot;&gt;() {}
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#adb7c9;&quot;&gt;    &lt;&#x2F;span&gt;&lt;span style=&quot;color:#cd74e8;&quot;&gt;static void &lt;&#x2F;span&gt;&lt;span style=&quot;color:#5cb3fa;&quot;&gt;printCount&lt;&#x2F;span&gt;&lt;span style=&quot;color:#adb7c9;&quot;&gt;() {}
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#adb7c9;&quot;&gt;}&lt;&#x2F;span&gt;&lt;span style=&quot;color:#abb2bf;&quot;&gt;;
+&lt;&#x2F;span&gt;&lt;&#x2F;code&gt;&lt;&#x2F;pre&gt;
+&lt;p&gt;其内存布局如下：&lt;&#x2F;p&gt;
+&lt;pre style=&quot;background-color:#2b303b;color:#6c7079;&quot;&gt;&lt;code&gt;&lt;span style=&quot;color:#abb2bf;&quot;&gt;      |                        |          
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#abb2bf;&quot;&gt;      |------------------------| &amp;lt;------ X class object memory layout
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#abb2bf;&quot;&gt;      |        int X::x        |
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#abb2bf;&quot;&gt;stack |------------------------|
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#abb2bf;&quot;&gt;  |   |       float X::xx      |                      
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#abb2bf;&quot;&gt;  |   |------------------------|      |-------|--------------------------|
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#abb2bf;&quot;&gt;  |   |         X::_vptr       |------|       |       type_info X        |
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#abb2bf;&quot;&gt; \|&#x2F;  |------------------------|              |--------------------------|
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#abb2bf;&quot;&gt;      |           o            |              |    address of X::~X()    |
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#abb2bf;&quot;&gt;      |           o            |              |--------------------------|
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#abb2bf;&quot;&gt;      |           o            |              | address of X::printAll() |
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#abb2bf;&quot;&gt;      |                        |              |--------------------------|
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#abb2bf;&quot;&gt;      |                        |
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#abb2bf;&quot;&gt;------|------------------------|------------
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#abb2bf;&quot;&gt;      |  static int X::count   |      &#x2F;|\
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#abb2bf;&quot;&gt;      |------------------------|       |
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#abb2bf;&quot;&gt;      |           o            |  data segment           
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#abb2bf;&quot;&gt;      |           o            |       |
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#abb2bf;&quot;&gt;      |                        |      \|&#x2F;
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#abb2bf;&quot;&gt;------|------------------------|------------
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#abb2bf;&quot;&gt;      |        X::X()          | 
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#abb2bf;&quot;&gt;      |------------------------|       |   
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#abb2bf;&quot;&gt;      |        X::~X()         |       |
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#abb2bf;&quot;&gt;      |------------------------|       | 
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#abb2bf;&quot;&gt;      |      X::printAll()     |      \|&#x2F; 
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#abb2bf;&quot;&gt;      |------------------------|  text segment
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#abb2bf;&quot;&gt;      |      X::printInt()     |
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#abb2bf;&quot;&gt;      |------------------------|
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#abb2bf;&quot;&gt;      |     X::printFloat()    |
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#abb2bf;&quot;&gt;      |------------------------|
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#abb2bf;&quot;&gt;      | static X::printCount() |
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#abb2bf;&quot;&gt;      |------------------------|
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#abb2bf;&quot;&gt;      |                        |
+&lt;&#x2F;span&gt;&lt;&#x2F;code&gt;&lt;&#x2F;pre&gt;
+&lt;p&gt;我们进行逐一分析，首先非静态成员变量和成员函数依旧不变。&lt;&#x2F;p&gt;
+&lt;p&gt;由于引入了新的静态成员变量，在程序的内存布局中出现了一个新的名称，&lt;code&gt;data segment&lt;&#x2F;code&gt;。这个部分主要存储一些全局变量，静态变量和常量等。因此，我们的静态成员变量也放在这个部分。这些静态变量并不属于该类的某一个对象拥有，而是这个类所有，可以理解对该类的所有对象是共享的。当我们访问的时候，要考虑到命名空间和作用域名，因此，一般会使用&lt;code&gt;::&lt;&#x2F;code&gt;进行访问。此处还涉及到&lt;a href=&quot;https:&#x2F;&#x2F;www.google.com&#x2F;url?sa=t&amp;amp;rct=j&amp;amp;q=&amp;amp;esrc=s&amp;amp;source=web&amp;amp;cd=2&amp;amp;cad=rja&amp;amp;uact=8&amp;amp;ved=2ahUKEwjloqrohPToAhXDILcAHU4eC4kQFjABegQIDhAD&amp;amp;url=https%3A%2F%2Fwww.ibm.com%2Fsupport%2Fknowledgecenter%2Fssw_ibm_i_72%2Frzarg%2Fname_mangling.htm&amp;amp;usg=AOvVaw1JsTeSnCRnH6Cm-FjtqOUq&quot;&gt;name mangling&lt;&#x2F;a&gt;。&lt;&#x2F;p&gt;
+&lt;p&gt;此外，还需要说明一下，虽然静态成员函数和非静态成员函数(统称成员函数)都位于&lt;code&gt;text segment&lt;&#x2F;code&gt;中，但是他们之间最重要的区别是非静态成员在调用的时候没有&lt;code&gt;this&lt;&#x2F;code&gt;指针传入。&lt;&#x2F;p&gt;
+&lt;p&gt;接着，对于&lt;code&gt;virtual&lt;&#x2F;code&gt;关键字，编译器会自动在对象的内存布局中插入一个&lt;code&gt;_vptr&lt;&#x2F;code&gt;指针指向一张虚表。在虚表中，&lt;code&gt;type_info&lt;&#x2F;code&gt;包含当前类的相关信息，如果有基类，那么还有有其他基类的信息（DAG）。&lt;&#x2F;p&gt;
+&lt;p&gt;&lt;code&gt;_vptr&lt;&#x2F;code&gt;的数据类型在标准中没有提及。&lt;&#x2F;p&gt;
+&lt;h2 id=&quot;ji-cheng-dui-xiang&quot;&gt;继承对象&lt;&#x2F;h2&gt;
+&lt;p&gt;c++的继承一般分为三种，单一继承，多重继承和虚继承。如下是单一继承：&lt;&#x2F;p&gt;
+&lt;pre data-lang=&quot;c++&quot; style=&quot;background-color:#2b303b;color:#6c7079;&quot; class=&quot;language-c++ &quot;&gt;&lt;code class=&quot;language-c++&quot; data-lang=&quot;c++&quot;&gt;&lt;span style=&quot;color:#cd74e8;&quot;&gt;class &lt;&#x2F;span&gt;&lt;span style=&quot;color:#f0c678;&quot;&gt;X &lt;&#x2F;span&gt;&lt;span style=&quot;color:#adb7c9;&quot;&gt;{
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#adb7c9;&quot;&gt;    &lt;&#x2F;span&gt;&lt;span style=&quot;color:#cd74e8;&quot;&gt;int&lt;&#x2F;span&gt;&lt;span style=&quot;color:#adb7c9;&quot;&gt;     x;
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#adb7c9;&quot;&gt;    string str;
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#adb7c9;&quot;&gt;
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#cd74e8;&quot;&gt;public&lt;&#x2F;span&gt;&lt;span style=&quot;color:#adb7c9;&quot;&gt;:
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#adb7c9;&quot;&gt;    &lt;&#x2F;span&gt;&lt;span style=&quot;color:#5cb3fa;&quot;&gt;X&lt;&#x2F;span&gt;&lt;span style=&quot;color:#adb7c9;&quot;&gt;() {}
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#adb7c9;&quot;&gt;    &lt;&#x2F;span&gt;&lt;span style=&quot;color:#cd74e8;&quot;&gt;virtual &lt;&#x2F;span&gt;&lt;span style=&quot;color:#5cb3fa;&quot;&gt;~X&lt;&#x2F;span&gt;&lt;span style=&quot;color:#adb7c9;&quot;&gt;() {}
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#adb7c9;&quot;&gt;
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#adb7c9;&quot;&gt;    &lt;&#x2F;span&gt;&lt;span style=&quot;color:#cd74e8;&quot;&gt;virtual void &lt;&#x2F;span&gt;&lt;span style=&quot;color:#5cb3fa;&quot;&gt;printAll&lt;&#x2F;span&gt;&lt;span style=&quot;color:#adb7c9;&quot;&gt;() {}
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#adb7c9;&quot;&gt;}&lt;&#x2F;span&gt;&lt;span style=&quot;color:#abb2bf;&quot;&gt;;
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#abb2bf;&quot;&gt;
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#cd74e8;&quot;&gt;class &lt;&#x2F;span&gt;&lt;span style=&quot;color:#f0c678;&quot;&gt;Y &lt;&#x2F;span&gt;&lt;span style=&quot;color:#adb7c9;&quot;&gt;: &lt;&#x2F;span&gt;&lt;span style=&quot;color:#cd74e8;&quot;&gt;public &lt;&#x2F;span&gt;&lt;span style=&quot;color:#9acc76;&quot;&gt;X &lt;&#x2F;span&gt;&lt;span style=&quot;color:#adb7c9;&quot;&gt;{
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#adb7c9;&quot;&gt;    &lt;&#x2F;span&gt;&lt;span style=&quot;color:#cd74e8;&quot;&gt;int&lt;&#x2F;span&gt;&lt;span style=&quot;color:#adb7c9;&quot;&gt;     y;
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#adb7c9;&quot;&gt;
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#cd74e8;&quot;&gt;public&lt;&#x2F;span&gt;&lt;span style=&quot;color:#adb7c9;&quot;&gt;:
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#adb7c9;&quot;&gt;    &lt;&#x2F;span&gt;&lt;span style=&quot;color:#5cb3fa;&quot;&gt;Y&lt;&#x2F;span&gt;&lt;span style=&quot;color:#adb7c9;&quot;&gt;() {}
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#adb7c9;&quot;&gt;    &lt;&#x2F;span&gt;&lt;span style=&quot;color:#5cb3fa;&quot;&gt;~Y&lt;&#x2F;span&gt;&lt;span style=&quot;color:#adb7c9;&quot;&gt;() {}
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#adb7c9;&quot;&gt;
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#adb7c9;&quot;&gt;    &lt;&#x2F;span&gt;&lt;span style=&quot;color:#cd74e8;&quot;&gt;void &lt;&#x2F;span&gt;&lt;span style=&quot;color:#5cb3fa;&quot;&gt;printAll&lt;&#x2F;span&gt;&lt;span style=&quot;color:#adb7c9;&quot;&gt;() {}
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#adb7c9;&quot;&gt;}&lt;&#x2F;span&gt;&lt;span style=&quot;color:#abb2bf;&quot;&gt;;
+&lt;&#x2F;span&gt;&lt;&#x2F;code&gt;&lt;&#x2F;pre&gt;
+&lt;p&gt;其内存布局如下：&lt;&#x2F;p&gt;
+&lt;pre style=&quot;background-color:#2b303b;color:#6c7079;&quot;&gt;&lt;code&gt;&lt;span style=&quot;color:#abb2bf;&quot;&gt;      |                              |          
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#abb2bf;&quot;&gt;      |------------------------------| &amp;lt;------ Y class object memory layout
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#abb2bf;&quot;&gt;      |          int X::x            |
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#abb2bf;&quot;&gt;stack |------------------------------|
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#abb2bf;&quot;&gt;  |   |              int string::len |
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#abb2bf;&quot;&gt;  |   |string X::str ----------------|
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#abb2bf;&quot;&gt;  |   |            char* string::str |         
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#abb2bf;&quot;&gt; \|&#x2F;  |------------------------------|      |-------|--------------------------|
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#abb2bf;&quot;&gt;      |           X::_vptr           |------|       |       type_info Y        |
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#abb2bf;&quot;&gt;      |------------------------------|              |--------------------------|
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#abb2bf;&quot;&gt;      |          int Y::y            |              |    address of Y::~Y()    |
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#abb2bf;&quot;&gt;      |------------------------------|              |--------------------------|
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#abb2bf;&quot;&gt;      |               o              |              | address of Y::printAll() |
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#abb2bf;&quot;&gt;      |               o              |              |--------------------------|
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#abb2bf;&quot;&gt;      |               o              |              
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#abb2bf;&quot;&gt;------|------------------------------|--------
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#abb2bf;&quot;&gt;      |           X::X()             | 
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#abb2bf;&quot;&gt;      |------------------------------|       |   
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#abb2bf;&quot;&gt;      |           X::~X()            |       |
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#abb2bf;&quot;&gt;      |------------------------------|       | 
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#abb2bf;&quot;&gt;      |         X::printAll()        |      \|&#x2F; 
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#abb2bf;&quot;&gt;      |------------------------------|  text segment
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#abb2bf;&quot;&gt;      |           Y::Y()             |
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#abb2bf;&quot;&gt;      |------------------------------|
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#abb2bf;&quot;&gt;      |           Y::~Y()            |
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#abb2bf;&quot;&gt;      |------------------------------|
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#abb2bf;&quot;&gt;      |         Y::printAll()        |
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#abb2bf;&quot;&gt;      |------------------------------|
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#abb2bf;&quot;&gt;      |      string::string()        |
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#abb2bf;&quot;&gt;      |------------------------------|
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#abb2bf;&quot;&gt;      |      string::~string()       |
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#abb2bf;&quot;&gt;      |------------------------------|
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#abb2bf;&quot;&gt;      |      string::length()        |
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#abb2bf;&quot;&gt;      |------------------------------|
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#abb2bf;&quot;&gt;      |               o              |
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#abb2bf;&quot;&gt;      |               o              |
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#abb2bf;&quot;&gt;      |               o              |
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#abb2bf;&quot;&gt;      |                              |
+&lt;&#x2F;span&gt;&lt;&#x2F;code&gt;&lt;&#x2F;pre&gt;
+&lt;p&gt;在继承模型中，基类和数据成员类都是派生类的一个子对象(如上图的 &lt;code&gt;X&lt;&#x2F;code&gt;，&lt;code&gt;string&lt;&#x2F;code&gt;)。&lt;&#x2F;p&gt;
+&lt;p&gt;注意，此时虚表中所有被&lt;code&gt;overriden&lt;&#x2F;code&gt;的虚函数以及其他信息在构造函数阶段会被编译器生成并赋给&lt;code&gt;_vptr&lt;&#x2F;code&gt;。&lt;&#x2F;p&gt;
+&lt;h2 id=&quot;duo-zhong-ji-cheng-xia-ju-you-xu-han-shu-de-dui-xiang&quot;&gt;多重继承下具有虚函数的对象&lt;&#x2F;h2&gt;
+&lt;p&gt;&lt;code&gt;Z&lt;&#x2F;code&gt;从&lt;code&gt;X&lt;&#x2F;code&gt;和&lt;code&gt;Y&lt;&#x2F;code&gt;派生而来，同时&lt;code&gt;X&lt;&#x2F;code&gt;和&lt;code&gt;Y&lt;&#x2F;code&gt;中都有虚函数。代码如下：&lt;&#x2F;p&gt;
+&lt;pre data-lang=&quot;c++&quot; style=&quot;background-color:#2b303b;color:#6c7079;&quot; class=&quot;language-c++ &quot;&gt;&lt;code class=&quot;language-c++&quot; data-lang=&quot;c++&quot;&gt;&lt;span style=&quot;color:#cd74e8;&quot;&gt;class &lt;&#x2F;span&gt;&lt;span style=&quot;color:#f0c678;&quot;&gt;X &lt;&#x2F;span&gt;&lt;span style=&quot;color:#adb7c9;&quot;&gt;{
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#cd74e8;&quot;&gt;public&lt;&#x2F;span&gt;&lt;span style=&quot;color:#adb7c9;&quot;&gt;:
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#adb7c9;&quot;&gt;    &lt;&#x2F;span&gt;&lt;span style=&quot;color:#cd74e8;&quot;&gt;int&lt;&#x2F;span&gt;&lt;span style=&quot;color:#adb7c9;&quot;&gt;     x;
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#adb7c9;&quot;&gt;    
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#adb7c9;&quot;&gt;    &lt;&#x2F;span&gt;&lt;span style=&quot;color:#cd74e8;&quot;&gt;virtual &lt;&#x2F;span&gt;&lt;span style=&quot;color:#5cb3fa;&quot;&gt;~X&lt;&#x2F;span&gt;&lt;span style=&quot;color:#adb7c9;&quot;&gt;() {}
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#adb7c9;&quot;&gt;    &lt;&#x2F;span&gt;&lt;span style=&quot;color:#cd74e8;&quot;&gt;virtual void &lt;&#x2F;span&gt;&lt;span style=&quot;color:#5cb3fa;&quot;&gt;printX&lt;&#x2F;span&gt;&lt;span style=&quot;color:#adb7c9;&quot;&gt;() {}
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#adb7c9;&quot;&gt;}&lt;&#x2F;span&gt;&lt;span style=&quot;color:#abb2bf;&quot;&gt;;
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#abb2bf;&quot;&gt;
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#cd74e8;&quot;&gt;class &lt;&#x2F;span&gt;&lt;span style=&quot;color:#f0c678;&quot;&gt;Y &lt;&#x2F;span&gt;&lt;span style=&quot;color:#adb7c9;&quot;&gt;{
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#cd74e8;&quot;&gt;public&lt;&#x2F;span&gt;&lt;span style=&quot;color:#adb7c9;&quot;&gt;:
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#adb7c9;&quot;&gt;    &lt;&#x2F;span&gt;&lt;span style=&quot;color:#cd74e8;&quot;&gt;int&lt;&#x2F;span&gt;&lt;span style=&quot;color:#adb7c9;&quot;&gt;     y;
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#adb7c9;&quot;&gt;    
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#adb7c9;&quot;&gt;    &lt;&#x2F;span&gt;&lt;span style=&quot;color:#cd74e8;&quot;&gt;virtual &lt;&#x2F;span&gt;&lt;span style=&quot;color:#5cb3fa;&quot;&gt;~Y&lt;&#x2F;span&gt;&lt;span style=&quot;color:#adb7c9;&quot;&gt;() {}
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#adb7c9;&quot;&gt;    &lt;&#x2F;span&gt;&lt;span style=&quot;color:#cd74e8;&quot;&gt;virtual void &lt;&#x2F;span&gt;&lt;span style=&quot;color:#5cb3fa;&quot;&gt;printY&lt;&#x2F;span&gt;&lt;span style=&quot;color:#adb7c9;&quot;&gt;() {}
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#adb7c9;&quot;&gt;}&lt;&#x2F;span&gt;&lt;span style=&quot;color:#abb2bf;&quot;&gt;;
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#abb2bf;&quot;&gt;
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#cd74e8;&quot;&gt;class &lt;&#x2F;span&gt;&lt;span style=&quot;color:#f0c678;&quot;&gt;Z &lt;&#x2F;span&gt;&lt;span style=&quot;color:#adb7c9;&quot;&gt;: &lt;&#x2F;span&gt;&lt;span style=&quot;color:#cd74e8;&quot;&gt;public &lt;&#x2F;span&gt;&lt;span style=&quot;color:#9acc76;&quot;&gt;X&lt;&#x2F;span&gt;&lt;span style=&quot;color:#adb7c9;&quot;&gt;, &lt;&#x2F;span&gt;&lt;span style=&quot;color:#cd74e8;&quot;&gt;public &lt;&#x2F;span&gt;&lt;span style=&quot;color:#9acc76;&quot;&gt;Y &lt;&#x2F;span&gt;&lt;span style=&quot;color:#adb7c9;&quot;&gt;{
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#cd74e8;&quot;&gt;public&lt;&#x2F;span&gt;&lt;span style=&quot;color:#adb7c9;&quot;&gt;:
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#adb7c9;&quot;&gt;    &lt;&#x2F;span&gt;&lt;span style=&quot;color:#cd74e8;&quot;&gt;int&lt;&#x2F;span&gt;&lt;span style=&quot;color:#adb7c9;&quot;&gt;     z;
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#adb7c9;&quot;&gt;    
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#adb7c9;&quot;&gt;    &lt;&#x2F;span&gt;&lt;span style=&quot;color:#5cb3fa;&quot;&gt;~Z&lt;&#x2F;span&gt;&lt;span style=&quot;color:#adb7c9;&quot;&gt;() {}
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#adb7c9;&quot;&gt;    &lt;&#x2F;span&gt;&lt;span style=&quot;color:#cd74e8;&quot;&gt;void &lt;&#x2F;span&gt;&lt;span style=&quot;color:#5cb3fa;&quot;&gt;printX&lt;&#x2F;span&gt;&lt;span style=&quot;color:#adb7c9;&quot;&gt;() {}
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#adb7c9;&quot;&gt;    &lt;&#x2F;span&gt;&lt;span style=&quot;color:#cd74e8;&quot;&gt;void &lt;&#x2F;span&gt;&lt;span style=&quot;color:#5cb3fa;&quot;&gt;printY&lt;&#x2F;span&gt;&lt;span style=&quot;color:#adb7c9;&quot;&gt;() {}
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#adb7c9;&quot;&gt;    &lt;&#x2F;span&gt;&lt;span style=&quot;color:#cd74e8;&quot;&gt;void &lt;&#x2F;span&gt;&lt;span style=&quot;color:#5cb3fa;&quot;&gt;printZ&lt;&#x2F;span&gt;&lt;span style=&quot;color:#adb7c9;&quot;&gt;() {}
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#adb7c9;&quot;&gt;}&lt;&#x2F;span&gt;&lt;span style=&quot;color:#abb2bf;&quot;&gt;;
+&lt;&#x2F;span&gt;&lt;&#x2F;code&gt;&lt;&#x2F;pre&gt;
+&lt;p&gt;其内存布局如下:&lt;&#x2F;p&gt;
+&lt;pre style=&quot;background-color:#2b303b;color:#6c7079;&quot;&gt;&lt;code&gt;&lt;span style=&quot;color:#abb2bf;&quot;&gt;      |                              |          
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#abb2bf;&quot;&gt;      |------------------------------| &amp;lt;------ Z class object memory layout
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#abb2bf;&quot;&gt;stack |          int X::x            |         
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#abb2bf;&quot;&gt;  |   |------------------------------|                  |--------------------------|      
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#abb2bf;&quot;&gt;  |   |          X:: _vptr           |-----------------&amp;gt;|       type_info Z        |
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#abb2bf;&quot;&gt;  |   |------------------------------|                  |--------------------------|
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#abb2bf;&quot;&gt; \|&#x2F;  |          int Y::y            |                  |    address of Z::~Z()    |
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#abb2bf;&quot;&gt;      |------------------------------|                  |--------------------------|
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#abb2bf;&quot;&gt;      |          Y:: _vptr           |------|           |   address of Z::printX() |
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#abb2bf;&quot;&gt;      |------------------------------|      |           |--------------------------|
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#abb2bf;&quot;&gt;      |          int Z::z            |      |           |--------GUARD_AREA--------|    
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#abb2bf;&quot;&gt;      |------------------------------|      |           |--------------------------|
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#abb2bf;&quot;&gt;      |              o               |      |----------&amp;gt;|       type_info Z        |
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#abb2bf;&quot;&gt;      |              o               |                  |--------------------------|
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#abb2bf;&quot;&gt;      |              o               |                  |    address of Z::~Z()    |
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#abb2bf;&quot;&gt;      |                              |                  |--------------------------|
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#abb2bf;&quot;&gt;------|------------------------------|---------         |   address of Z::printY() |
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#abb2bf;&quot;&gt;      |           X::~X()            |       |          |--------------------------|  
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#abb2bf;&quot;&gt;      |------------------------------|       |          
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#abb2bf;&quot;&gt;      |          X::printX()         |       |        
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#abb2bf;&quot;&gt;      |------------------------------|       |         
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#abb2bf;&quot;&gt;      |           Y::~Y()            |      \|&#x2F;        
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#abb2bf;&quot;&gt;      |------------------------------|  text segment
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#abb2bf;&quot;&gt;      |          Y::printY()         |                
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#abb2bf;&quot;&gt;      |------------------------------|                
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#abb2bf;&quot;&gt;      |           Z::~Z()            |                
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#abb2bf;&quot;&gt;      |------------------------------|                
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#abb2bf;&quot;&gt;      |          Z::printX()         |                
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#abb2bf;&quot;&gt;      |------------------------------|                
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#abb2bf;&quot;&gt;      |          Z::printY()         |                
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#abb2bf;&quot;&gt;      |------------------------------|                
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#abb2bf;&quot;&gt;      |          Z::printZ()         |                
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#abb2bf;&quot;&gt;      |------------------------------|                
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#abb2bf;&quot;&gt;      |               o              |                
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#abb2bf;&quot;&gt;      |               o              |                
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#abb2bf;&quot;&gt;      |                              |                
+&lt;&#x2F;span&gt;&lt;&#x2F;code&gt;&lt;&#x2F;pre&gt;
+&lt;p&gt;在多重继承的层次结构中，此时我们有两个&lt;code&gt;_vptr&lt;&#x2F;code&gt;分别来自&lt;code&gt;X&lt;&#x2F;code&gt;和&lt;code&gt;Y&lt;&#x2F;code&gt;。&lt;&#x2F;p&gt;
+&lt;h2 id=&quot;xu-ji-cheng&quot;&gt;虚继承&lt;&#x2F;h2&gt;
+&lt;pre data-lang=&quot;c++&quot; style=&quot;background-color:#2b303b;color:#6c7079;&quot; class=&quot;language-c++ &quot;&gt;&lt;code class=&quot;language-c++&quot; data-lang=&quot;c++&quot;&gt;&lt;span style=&quot;color:#cd74e8;&quot;&gt;class &lt;&#x2F;span&gt;&lt;span style=&quot;color:#f0c678;&quot;&gt;X &lt;&#x2F;span&gt;&lt;span style=&quot;color:#adb7c9;&quot;&gt;{ &lt;&#x2F;span&gt;&lt;span style=&quot;color:#cd74e8;&quot;&gt;int&lt;&#x2F;span&gt;&lt;span style=&quot;color:#adb7c9;&quot;&gt; x; }&lt;&#x2F;span&gt;&lt;span style=&quot;color:#abb2bf;&quot;&gt;;
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#cd74e8;&quot;&gt;class &lt;&#x2F;span&gt;&lt;span style=&quot;color:#f0c678;&quot;&gt;Y &lt;&#x2F;span&gt;&lt;span style=&quot;color:#adb7c9;&quot;&gt;: &lt;&#x2F;span&gt;&lt;span style=&quot;color:#cd74e8;&quot;&gt;public virtual &lt;&#x2F;span&gt;&lt;span style=&quot;color:#9acc76;&quot;&gt;X &lt;&#x2F;span&gt;&lt;span style=&quot;color:#adb7c9;&quot;&gt;{ &lt;&#x2F;span&gt;&lt;span style=&quot;color:#cd74e8;&quot;&gt;int&lt;&#x2F;span&gt;&lt;span style=&quot;color:#adb7c9;&quot;&gt; y; }&lt;&#x2F;span&gt;&lt;span style=&quot;color:#abb2bf;&quot;&gt;;
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#cd74e8;&quot;&gt;class &lt;&#x2F;span&gt;&lt;span style=&quot;color:#f0c678;&quot;&gt;Z &lt;&#x2F;span&gt;&lt;span style=&quot;color:#adb7c9;&quot;&gt;: &lt;&#x2F;span&gt;&lt;span style=&quot;color:#cd74e8;&quot;&gt;public virtual &lt;&#x2F;span&gt;&lt;span style=&quot;color:#9acc76;&quot;&gt;X &lt;&#x2F;span&gt;&lt;span style=&quot;color:#adb7c9;&quot;&gt;{ &lt;&#x2F;span&gt;&lt;span style=&quot;color:#cd74e8;&quot;&gt;int&lt;&#x2F;span&gt;&lt;span style=&quot;color:#adb7c9;&quot;&gt; z; }&lt;&#x2F;span&gt;&lt;span style=&quot;color:#abb2bf;&quot;&gt;;
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#cd74e8;&quot;&gt;class &lt;&#x2F;span&gt;&lt;span style=&quot;color:#f0c678;&quot;&gt;A &lt;&#x2F;span&gt;&lt;span style=&quot;color:#adb7c9;&quot;&gt;: &lt;&#x2F;span&gt;&lt;span style=&quot;color:#cd74e8;&quot;&gt;public &lt;&#x2F;span&gt;&lt;span style=&quot;color:#9acc76;&quot;&gt;Y&lt;&#x2F;span&gt;&lt;span style=&quot;color:#adb7c9;&quot;&gt;, &lt;&#x2F;span&gt;&lt;span style=&quot;color:#cd74e8;&quot;&gt;public &lt;&#x2F;span&gt;&lt;span style=&quot;color:#9acc76;&quot;&gt;Z &lt;&#x2F;span&gt;&lt;span style=&quot;color:#adb7c9;&quot;&gt;{ &lt;&#x2F;span&gt;&lt;span style=&quot;color:#cd74e8;&quot;&gt;int&lt;&#x2F;span&gt;&lt;span style=&quot;color:#adb7c9;&quot;&gt; a; }&lt;&#x2F;span&gt;&lt;span style=&quot;color:#abb2bf;&quot;&gt;;
+&lt;&#x2F;span&gt;&lt;&#x2F;code&gt;&lt;&#x2F;pre&gt;
+&lt;p&gt;其内存布局如下：&lt;&#x2F;p&gt;
+&lt;pre style=&quot;background-color:#2b303b;color:#6c7079;&quot;&gt;&lt;code&gt;&lt;span style=&quot;color:#abb2bf;&quot;&gt;                  |                |          
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#abb2bf;&quot;&gt; Y class  ------&amp;gt; |----------------| &amp;lt;------ A class object memory layout
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#abb2bf;&quot;&gt;sub-object        |   Y::y         |          
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#abb2bf;&quot;&gt;                  |----------------|             |------------------| 
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#abb2bf;&quot;&gt;                  |   Y::_vptr_Y   |------|      |    offset of X   | &#x2F;&#x2F; offset(20) starts from Y 
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#abb2bf;&quot;&gt; Z class  ------&amp;gt; |----------------|      |----&amp;gt; |------------------|     
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#abb2bf;&quot;&gt;sub-object        |   Z::z         |             |       .....      |     
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#abb2bf;&quot;&gt;                  |----------------|             |------------------|  
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#abb2bf;&quot;&gt;                  |   Z::_vptr_Z   |------|       
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#abb2bf;&quot;&gt;                  |----------------|      |        
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#abb2bf;&quot;&gt; A sub-object --&amp;gt; |   A::a         |      |      |------------------| 
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#abb2bf;&quot;&gt;                  |----------------|      |      |    offset of X   | &#x2F;&#x2F; offset(12) starts from Z
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#abb2bf;&quot;&gt; X class -------&amp;gt; |   X::x         |      |----&amp;gt; |------------------|          
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#abb2bf;&quot;&gt; shared           |----------------|             |       .....      |           
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#abb2bf;&quot;&gt; sub-object       |                |             |------------------|           
+&lt;&#x2F;span&gt;&lt;&#x2F;code&gt;&lt;&#x2F;pre&gt;
+&lt;p&gt;此是内存布局包含两个区域：&lt;&#x2F;p&gt;
+&lt;ul&gt;
+&lt;li&gt;不可变区域&lt;&#x2F;li&gt;
+&lt;li&gt;共享区域(&lt;code&gt;X&lt;&#x2F;code&gt;变成一个共享对象，也就是其只存在一份)&lt;&#x2F;li&gt;
+&lt;&#x2F;ul&gt;
+</content>
+	</entry>
+	<entry xml:lang="zh">
+		<title>关于C++模板类中子类无法看到父类成员</title>
+		<published>2022-08-21T00:00:00+00:00</published>
+		<updated>2022-08-21T00:00:00+00:00</updated>
+		<link rel="alternate" href="https://verilyw.github.io/1/" type="text/html"/>
+		<id>https://verilyw.github.io/1/</id>
+		<content type="html">&lt;p&gt;在做cmu14-455的project0的时候，发现c++模板类的派生与普通类的派生对其基类的数据成员访问方式有所差异。在普通类中子类可以访问非&lt;code&gt;private&lt;&#x2F;code&gt;下的父类成员变量。然而，在模板类中，这是不能够直接访问的，会产生&lt;code&gt;not decleared in this scope&lt;&#x2F;code&gt;的错误。&lt;&#x2F;p&gt;
+&lt;!--more--&gt;
+&lt;h2 id=&quot;wei-shi-yao-hui-chu-xian-zhe-yang-qing-kuang-ni&quot;&gt;为什么会出现这样情况呢？&lt;&#x2F;h2&gt;
+&lt;p&gt;这是一个依赖和非依赖，以及延迟查找的问题。&lt;code&gt;c++&lt;&#x2F;code&gt;模板中的名称会进行两次查找，称为&lt;strong&gt;两阶段查找&lt;&#x2F;strong&gt;(two-phase lookup)。&lt;&#x2F;p&gt;
+&lt;blockquote&gt;
+&lt;p&gt;Here&#x27;s the rule: the compiler does not look in dependent base classes(like B&lt;T&gt;) when looking up nondependent names(like f).&lt;&#x2F;p&gt;
+&lt;&#x2F;blockquote&gt;
+&lt;p&gt;对于一个非依赖型名称(不以任何方式依赖于模板参数的名称)，在模板声明进行解析的时候就会进行查找。但c++标准中规定(14.6.2 3)，一个非受限的名称查找的时候将不会考虑依赖性的基类。也就是说如果基类是一个模板类(有依赖性的基类)，即使它有非依赖型的成员，也不会进行查找。因此，这也是我们为什么看不到模板基类中非依赖的成员的原因。&lt;&#x2F;p&gt;
+&lt;pre data-lang=&quot;c++&quot; style=&quot;background-color:#2b303b;color:#6c7079;&quot; class=&quot;language-c++ &quot;&gt;&lt;code class=&quot;language-c++&quot; data-lang=&quot;c++&quot;&gt;&lt;span style=&quot;color:#cd74e8;&quot;&gt;template &lt;&#x2F;span&gt;&lt;span style=&quot;color:#abb2bf;&quot;&gt;&amp;lt;&lt;&#x2F;span&gt;&lt;span style=&quot;color:#cd74e8;&quot;&gt;typename&lt;&#x2F;span&gt;&lt;span style=&quot;color:#abb2bf;&quot;&gt; T&amp;gt;
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#cd74e8;&quot;&gt;class &lt;&#x2F;span&gt;&lt;span style=&quot;color:#f0c678;&quot;&gt;B &lt;&#x2F;span&gt;&lt;span style=&quot;color:#adb7c9;&quot;&gt;{
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#cd74e8;&quot;&gt;public&lt;&#x2F;span&gt;&lt;span style=&quot;color:#adb7c9;&quot;&gt;:
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#adb7c9;&quot;&gt;  &lt;&#x2F;span&gt;&lt;span style=&quot;color:#cd74e8;&quot;&gt;void &lt;&#x2F;span&gt;&lt;span style=&quot;color:#5cb3fa;&quot;&gt;f&lt;&#x2F;span&gt;&lt;span style=&quot;color:#adb7c9;&quot;&gt;() { }  &lt;&#x2F;span&gt;&lt;span style=&quot;font-style:italic;color:#5f697a;&quot;&gt;&#x2F;&#x2F; Member of class B&amp;lt;T&amp;gt;
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#adb7c9;&quot;&gt;}&lt;&#x2F;span&gt;&lt;span style=&quot;color:#abb2bf;&quot;&gt;;
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#abb2bf;&quot;&gt;
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#cd74e8;&quot;&gt;template &lt;&#x2F;span&gt;&lt;span style=&quot;color:#abb2bf;&quot;&gt;&amp;lt;&lt;&#x2F;span&gt;&lt;span style=&quot;color:#cd74e8;&quot;&gt;typename&lt;&#x2F;span&gt;&lt;span style=&quot;color:#abb2bf;&quot;&gt; T&amp;gt;
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#cd74e8;&quot;&gt;class &lt;&#x2F;span&gt;&lt;span style=&quot;color:#f0c678;&quot;&gt;D &lt;&#x2F;span&gt;&lt;span style=&quot;color:#adb7c9;&quot;&gt;: &lt;&#x2F;span&gt;&lt;span style=&quot;color:#cd74e8;&quot;&gt;public &lt;&#x2F;span&gt;&lt;span style=&quot;color:#9acc76;&quot;&gt;B&lt;&#x2F;span&gt;&lt;span style=&quot;color:#adb7c9;&quot;&gt;&amp;lt;T&amp;gt; {
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#cd74e8;&quot;&gt;public&lt;&#x2F;span&gt;&lt;span style=&quot;color:#adb7c9;&quot;&gt;:
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#adb7c9;&quot;&gt;  &lt;&#x2F;span&gt;&lt;span style=&quot;color:#cd74e8;&quot;&gt;void &lt;&#x2F;span&gt;&lt;span style=&quot;color:#5cb3fa;&quot;&gt;g&lt;&#x2F;span&gt;&lt;span style=&quot;color:#adb7c9;&quot;&gt;()
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#adb7c9;&quot;&gt;  {
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#adb7c9;&quot;&gt;    &lt;&#x2F;span&gt;&lt;span style=&quot;color:#eb6772;&quot;&gt;f&lt;&#x2F;span&gt;&lt;span style=&quot;color:#adb7c9;&quot;&gt;();  &lt;&#x2F;span&gt;&lt;span style=&quot;font-style:italic;color:#5f697a;&quot;&gt;&#x2F;&#x2F; Bad (even though some compilers erroneously (temporarily?) accept it)
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#adb7c9;&quot;&gt;  }
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#adb7c9;&quot;&gt;}&lt;&#x2F;span&gt;&lt;span style=&quot;color:#abb2bf;&quot;&gt;;
+&lt;&#x2F;span&gt;&lt;&#x2F;code&gt;&lt;&#x2F;pre&gt;
+&lt;h2 id=&quot;jie-jue-fang-fa&quot;&gt;解决方法&lt;&#x2F;h2&gt;
+&lt;ol&gt;
+&lt;li&gt;
+&lt;p&gt;改变调用方式，如&lt;code&gt;f()&lt;&#x2F;code&gt;写成&lt;code&gt;this-&amp;gt;f()&lt;&#x2F;code&gt;。因为&lt;code&gt;this&lt;&#x2F;code&gt;总是隐式依赖于模板的，故&lt;code&gt;this-&amp;gt;f&lt;&#x2F;code&gt;变成了依赖型名称，查找也因此延迟到模板实例化之后(此时会考虑所有的基类)。&lt;&#x2F;p&gt;
+&lt;&#x2F;li&gt;
+&lt;li&gt;
+&lt;p&gt;在调用&lt;code&gt;f()&lt;&#x2F;code&gt;之前插入&lt;code&gt;using B&amp;lt;T&amp;gt;::f;&lt;&#x2F;code&gt;&lt;&#x2F;p&gt;
+&lt;&#x2F;li&gt;
+&lt;li&gt;
+&lt;p&gt;改变调用方式，&lt;code&gt;B&amp;lt;T&amp;gt;::f()&lt;&#x2F;code&gt;。注意这种方式的使用限制，如果&lt;code&gt;f()&lt;&#x2F;code&gt;是虚函数，这会禁止虚函数分配机制。&lt;&#x2F;p&gt;
+&lt;&#x2F;li&gt;
+&lt;&#x2F;ol&gt;
+&lt;h2 id=&quot;can-kao&quot;&gt;参考&lt;&#x2F;h2&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;a href=&quot;https:&#x2F;&#x2F;isocpp.org&#x2F;wiki&#x2F;faq&#x2F;templates#nondependent-name-lookup-members&quot;&gt;isocpp&lt;&#x2F;a&gt;&lt;&#x2F;li&gt;
+&lt;li&gt;&lt;a href=&quot;https:&#x2F;&#x2F;stackoverflow.com&#x2F;questions&#x2F;4643074&#x2F;why-do-i-have-to-access-template-base-class-members-through-the-this-pointer&quot;&gt;stackoverflow&lt;&#x2F;a&gt;&lt;&#x2F;li&gt;
+&lt;li&gt;&lt;a href=&quot;https:&#x2F;&#x2F;www.zhihu.com&#x2F;question&#x2F;28139230&quot;&gt;知乎&lt;&#x2F;a&gt;&lt;&#x2F;li&gt;
+&lt;&#x2F;ul&gt;
+</content>
+	</entry>
+	<entry xml:lang="zh">
+		<title>cmu15-455 Indexes</title>
+		<published>2022-08-21T00:00:00+00:00</published>
+		<updated>2022-08-21T00:00:00+00:00</updated>
+		<link rel="alternate" href="https://verilyw.github.io/indexes/" type="text/html"/>
+		<id>https://verilyw.github.io/indexes/</id>
+		<content type="html">&lt;p&gt;本章主要描述索引，即通过什么样的数据结构可以更加快速地查询到数据，介绍Hash Tables, B+Tree, SkipList。&lt;&#x2F;p&gt;
+&lt;p&gt;&lt;strong&gt;在数据之外，DBMS还维护这满足特定查找算法的数据结构，这些数据结构以某种方式引用(指向)数据，这样就可以在这些数据结构上实现高级的查找算法。这种数据结构就是索引&lt;&#x2F;strong&gt;&lt;&#x2F;p&gt;
+&lt;h2 id=&quot;shu-ju-jie-gou&quot;&gt;数据结构&lt;&#x2F;h2&gt;
+&lt;p&gt;DBMS使用各种各样的数据结构应用在系统内部的各个部分。&lt;&#x2F;p&gt;
+&lt;ul&gt;
+&lt;li&gt;内部元数据(internal meta-data): 追踪有关数据库和系统状态的信息&lt;&#x2F;li&gt;
+&lt;li&gt;核心数据存储(core data storage): 数据库中用于元组(tuples)的基本存储&lt;&#x2F;li&gt;
+&lt;li&gt;临时数据结构(tmeporary data structures): DBMS在处理查询时动态构建数据结构，加快查询速度(如 哈希表用于joins).&lt;&#x2F;li&gt;
+&lt;li&gt;表索引(table indexes): 辅助性数据结构， 便于特定元组更容易找到&lt;&#x2F;li&gt;
+&lt;&#x2F;ul&gt;
+&lt;p&gt;设计决策(design decisions):&lt;&#x2F;p&gt;
+&lt;ol&gt;
+&lt;li&gt;数据组织： 如何对内存进行布局以及在数据结构中存储哪些信息。 &lt;&#x2F;li&gt;
+&lt;li&gt;并发： 如何在启用多个线程访问数据结构时不引发并发问题。&lt;&#x2F;li&gt;
+&lt;&#x2F;ol&gt;
+&lt;h2 id=&quot;ha-xi-biao&quot;&gt;哈希表&lt;&#x2F;h2&gt;
+&lt;p&gt;本节分析了几种常见的hash函数，重点讲解了hash碰撞后的处理方式，包括静态hashing和动态hashing.&lt;&#x2F;p&gt;
+&lt;p&gt;哈希表实现了将键映射到值的关联数组抽象数据类型。&lt;&#x2F;p&gt;
+&lt;p&gt;实现由两部分组成：&lt;&#x2F;p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;strong&gt;Hash Functions&lt;&#x2F;strong&gt;: 如何将一个大的key空间映射到一个更小的域中。通常需要考虑到速度和碰撞率之间的权衡。&lt;&#x2F;li&gt;
+&lt;li&gt;&lt;strong&gt;Hashing Scheme&lt;&#x2F;strong&gt;: 如何处理key映射之后产生的碰撞。 需要在分配一个大的hash table来减少碰撞和执行额外的操作来查找和插入keys之间进行权衡。&lt;&#x2F;li&gt;
+&lt;&#x2F;ul&gt;
+&lt;h3 id=&quot;hash-functions&quot;&gt;Hash Functions&lt;&#x2F;h3&gt;
+&lt;p&gt;哈希函数接受一个key作为输入，然后返回一个该key的整数表示的值。函数的输出是确定的(如相同的key总是产生相同的哈希输出)。&lt;&#x2F;p&gt;
+&lt;p&gt;DBMS并不使用加密的哈希函数(如 SHA-256)，因为我们不需要考虑对键的内容进行保护。因为这些哈希函数主要作为系统内部使用，不用担心信息泄漏。&lt;&#x2F;p&gt;
+&lt;p&gt;当前的&lt;code&gt;state-of-the-art&lt;&#x2F;code&gt;哈希函数是&lt;code&gt;Facebook XXHash3&lt;&#x2F;code&gt;&lt;&#x2F;p&gt;
+&lt;p&gt;集中哈希函数的性能比较
+&lt;img src=&quot;https:&#x2F;&#x2F;verilyw.github.io&#x2F;indexes&#x2F;.&#x2F;2022-08-21_21-26.png&quot; alt=&quot;&quot; &#x2F;&gt;&lt;&#x2F;p&gt;
+&lt;h3 id=&quot;jing-tai-hashing-scheme&quot;&gt;静态Hashing Scheme&lt;&#x2F;h3&gt;
+&lt;p&gt;静态哈希方案是一种哈希表大小固定的应用方案。意味着如果DBMS用完了哈希表中的存储空间，那么他需要用一个更大的表重新进行构建。通常新表的大小是原来的两倍。&lt;&#x2F;p&gt;
+&lt;p&gt;主要介绍三种方案：&lt;&#x2F;p&gt;
+&lt;ol&gt;
+&lt;li&gt;&lt;code&gt;linear probe hashing&lt;&#x2F;code&gt;&lt;&#x2F;li&gt;
+&lt;li&gt;&lt;code&gt;robin hood hashing&lt;&#x2F;code&gt;&lt;&#x2F;li&gt;
+&lt;li&gt;&lt;code&gt;cuckoo hashing&lt;&#x2F;code&gt;&lt;&#x2F;li&gt;
+&lt;&#x2F;ol&gt;
+&lt;h4 id=&quot;linear-probe-hashing&quot;&gt;Linear Probe Hashing&lt;&#x2F;h4&gt;
+&lt;p&gt;所有元素都存放在哈希表的数组中，不使用额外的数据结构。&lt;&#x2F;p&gt;
+&lt;p&gt;线性探查(linear probe)是开发寻址法的最简单一种实现。步骤如下：&lt;&#x2F;p&gt;
+&lt;ol&gt;
+&lt;li&gt;插入新元素时，使用哈希函数在哈希表中定位元素位置。&lt;&#x2F;li&gt;
+&lt;li&gt;检查哈希表中该位置是否存在元素，如果为空，插入并返回，否则进行步骤3&lt;&#x2F;li&gt;
+&lt;li&gt;如果该位置为&lt;code&gt;i&lt;&#x2F;code&gt;, 检查&lt;code&gt;i+1&lt;&#x2F;code&gt;是否为空，如果已被占用，则继续检查&lt;code&gt;i+2&lt;&#x2F;code&gt;的位置，依次类推，直到找到一个空的位置。&lt;&#x2F;li&gt;
+&lt;&#x2F;ol&gt;
+&lt;p&gt;这种方式的缺点是会导致同类哈希的聚类(prmary clustering)。&lt;&#x2F;p&gt;
+&lt;h4 id=&quot;robin-hood-hashing&quot;&gt;Robin Hood Hashing&lt;&#x2F;h4&gt;
+&lt;p&gt;这是线性探查的一种扩展。寻求减少每个键在哈希表中的最佳位置到它们的最大距离。&lt;&#x2F;p&gt;
+&lt;p&gt;记录每个key到其最优插入位置的探查长度。当插入一个新元素时，在探查的过程中，如果插入的元素的探查长度大于当前元素的探查长度时，那么交换这两个元素(以及探查长度)，然后继续探查。&lt;&#x2F;p&gt;
+&lt;p&gt;探查长度更加平均，所以期望最长的探查长度也会显著下降。故这也是罗宾汉这个名字的由来，劫富济贫。&lt;&#x2F;p&gt;
+&lt;h4 id=&quot;cuckoo-hashing&quot;&gt;Cuckoo Hashing&lt;&#x2F;h4&gt;
+&lt;p&gt;与之前使用单个哈希表的方案不同，这种方案使用不同的哈希函数维护多个哈希表。哈希函数是相同的(如 XXHash, CityHash)，它们使用不同的种子值对同一个key对应生成不同的哈希值。&lt;&#x2F;p&gt;
+&lt;p&gt;在多个表中查找空闲的位置。因为每个哈希表只检查一个位置，所以查找和删除始终为O(1).&lt;&#x2F;p&gt;
+&lt;p&gt;在插入时，检查每个表并选择任何有空闲插槽的表。&lt;&#x2F;p&gt;
+&lt;p&gt;如果没有表有空闲插槽，则从其中一个删除该元素，然后重新哈希它寻找新的空闲位置。方式如下：
+&lt;img src=&quot;https:&#x2F;&#x2F;verilyw.github.io&#x2F;indexes&#x2F;.&#x2F;2022-08-21_22-06.png&quot; alt=&quot;&quot; &#x2F;&gt;
+&lt;img src=&quot;https:&#x2F;&#x2F;verilyw.github.io&#x2F;indexes&#x2F;.&#x2F;2022-08-21_22-06_1.png&quot; alt=&quot;&quot; &#x2F;&gt;
+&lt;img src=&quot;https:&#x2F;&#x2F;verilyw.github.io&#x2F;indexes&#x2F;.&#x2F;2022-08-21_22-07.png&quot; alt=&quot;&quot; &#x2F;&gt;
+&lt;img src=&quot;https:&#x2F;&#x2F;verilyw.github.io&#x2F;indexes&#x2F;.&#x2F;2022-08-21_22-07_1.png&quot; alt=&quot;&quot; &#x2F;&gt;&lt;&#x2F;p&gt;
+&lt;h3 id=&quot;dong-tai-hashing-scheme&quot;&gt;动态Hashing Scheme&lt;&#x2F;h3&gt;
+&lt;p&gt;类比c++中的数组和向量类型。动态哈希模式能够在不需要重建整个哈希表的情况下自动调整哈希表大小。&lt;&#x2F;p&gt;
+&lt;p&gt;主要介绍三种方案：&lt;&#x2F;p&gt;
+&lt;ol&gt;
+&lt;li&gt;&lt;code&gt;chained hashing&lt;&#x2F;code&gt;&lt;&#x2F;li&gt;
+&lt;li&gt;&lt;code&gt;extendible hashing&lt;&#x2F;code&gt;&lt;&#x2F;li&gt;
+&lt;li&gt;&lt;code&gt;linear hashing&lt;&#x2F;code&gt;&lt;&#x2F;li&gt;
+&lt;&#x2F;ol&gt;
+&lt;h4 id=&quot;chained-hashing&quot;&gt;Chained Hashing&lt;&#x2F;h4&gt;
+&lt;p&gt;这是最常使用的一种动态哈希方案。在每个哈希表中的&lt;code&gt;slot&lt;&#x2F;code&gt;中维护一个链表的&lt;code&gt;buckets&lt;&#x2F;code&gt;。&lt;&#x2F;p&gt;
+&lt;p&gt;通过将相同hash的key的元素放到同一个&lt;code&gt;bucket&lt;&#x2F;code&gt;中解决冲突。
+如果存储桶已满，则添加一个另外一个存储桶列表。理论上是可以无限增长的。&lt;&#x2F;p&gt;
+&lt;p&gt;处理并发时，在每个&lt;code&gt;bucket&lt;&#x2F;code&gt;上设置一个&lt;code&gt;latch&lt;&#x2F;code&gt;（mutex)。&lt;&#x2F;p&gt;
+&lt;p&gt;&lt;img src=&quot;https:&#x2F;&#x2F;verilyw.github.io&#x2F;indexes&#x2F;.&#x2F;2022-08-22_10-22.png&quot; alt=&quot;&quot; &#x2F;&gt;&lt;&#x2F;p&gt;
+&lt;h4 id=&quot;extendible-hashing&quot;&gt;Extendible Hashing&lt;&#x2F;h4&gt;
+&lt;p&gt;&lt;a href=&quot;https:&#x2F;&#x2F;www.alexdelis.eu&#x2F;M149&#x2F;p315-fagin.pdf&quot;&gt;论文链接&lt;&#x2F;a&gt;&lt;&#x2F;p&gt;
+&lt;p&gt;链式哈希的改进变体，可以拆分桶，而不是让链永远增长。这种方法允许哈希表多个槽(slot)指向同一个&lt;code&gt;bucket chain&lt;&#x2F;code&gt;。&lt;&#x2F;p&gt;
+&lt;p&gt;核心思想就是前缀树与哈希结合的概念。由两部分组成：目录和叶子节点，每个叶子节点也叫做一个&lt;code&gt;bucket&lt;&#x2F;code&gt;。&lt;&#x2F;p&gt;
+&lt;p&gt;重新平衡哈希表的核心思想在拆分时移动&lt;code&gt;bucket entries&lt;&#x2F;code&gt;并增加要检查的比特位数以在哈希表中查找。这意味着DBMS只需在拆分链的桶内移动数据，所有其他桶保持不变。&lt;&#x2F;p&gt;
+&lt;p&gt;首先这里的hash函数是根据前几位去分bucket, 有一个全局的depth和每个bucket有一个局部的depth。depth就是表示是多少位的意思。如用2位分bucket，目录大小是4，不够了用3位去分bucket，目录大小是8。&lt;&#x2F;p&gt;
+&lt;p&gt;全局的depth就代表当前的目录是用多少位分成的。局部的depth是个标识，表示这个bucket用的是几位&lt;&#x2F;p&gt;
+&lt;p&gt;&lt;img src=&quot;https:&#x2F;&#x2F;verilyw.github.io&#x2F;indexes&#x2F;.&#x2F;2022-08-22_11-13.png&quot; alt=&quot;&quot; &#x2F;&gt;
+&lt;img src=&quot;https:&#x2F;&#x2F;verilyw.github.io&#x2F;indexes&#x2F;.&#x2F;2022-08-22_11-13_1.png&quot; alt=&quot;&quot; &#x2F;&gt;
+&lt;img src=&quot;https:&#x2F;&#x2F;verilyw.github.io&#x2F;indexes&#x2F;.&#x2F;2022-08-22_11-13_2.png&quot; alt=&quot;&quot; &#x2F;&gt;&lt;&#x2F;p&gt;
+&lt;h4 id=&quot;linear-hashing&quot;&gt;Linear Hashing&lt;&#x2F;h4&gt;
+&lt;p&gt;这个思路也是逐步地分裂bucket。&lt;&#x2F;p&gt;
+&lt;p&gt;基本思想：&lt;&#x2F;p&gt;
+&lt;p&gt;假设初始bucket数是4，,按照4取模分bucket。&lt;&#x2F;p&gt;
+&lt;p&gt;如果某个bucket满了，怎么处理？&lt;&#x2F;p&gt;
+&lt;p&gt;首先把overflow的数据用一个临时的bucket存起来。
+&lt;img src=&quot;https:&#x2F;&#x2F;verilyw.github.io&#x2F;indexes&#x2F;.&#x2F;2022-08-22_12-41.png&quot; alt=&quot;&quot; &#x2F;&gt;
+&lt;img src=&quot;https:&#x2F;&#x2F;verilyw.github.io&#x2F;indexes&#x2F;.&#x2F;2022-08-22_12-41_1.png&quot; alt=&quot;&quot; &#x2F;&gt;&lt;&#x2F;p&gt;
+&lt;p&gt;接着做bucket分裂，这里的bucket过程是逐步完成的，最终达到bucket翻倍。
+这里注意&lt;code&gt;split pointer&lt;&#x2F;code&gt;，它是按顺序分裂，分裂也是按分裂点的那个桶进行分裂的，而不是从溢出的那个桶进行分裂。分裂后，&lt;code&gt;split pointer&lt;&#x2F;code&gt;后移一位，一次分裂结束。&lt;&#x2F;p&gt;
+&lt;p&gt;&lt;img src=&quot;https:&#x2F;&#x2F;verilyw.github.io&#x2F;indexes&#x2F;.&#x2F;2022-08-22_12-51.png&quot; alt=&quot;&quot; &#x2F;&gt;&lt;&#x2F;p&gt;
+&lt;p&gt;对于key的计算，在分裂点之前表示已经分裂的，所以用&lt;code&gt;hash2&lt;&#x2F;code&gt;计算，在之后的也就是没有进行分裂的，用&lt;code&gt;hash1&lt;&#x2F;code&gt;计算。&lt;&#x2F;p&gt;
+&lt;p&gt;&lt;img src=&quot;https:&#x2F;&#x2F;verilyw.github.io&#x2F;indexes&#x2F;.&#x2F;2022-08-22_12-55.png&quot; alt=&quot;&quot; &#x2F;&gt;&lt;&#x2F;p&gt;
+&lt;h2 id=&quot;tree-indexes&quot;&gt;Tree indexes&lt;&#x2F;h2&gt;
+&lt;p&gt;对于数据库而言，使用树系列，二叉树，红黑树，B树，B+树等，因为要考虑到range查询，所以哈希索引不行。&lt;&#x2F;p&gt;
+&lt;h3 id=&quot;table-indexes&quot;&gt;Table indexes&lt;&#x2F;h3&gt;
+&lt;p&gt;对于&lt;code&gt;table indexes&lt;&#x2F;code&gt;而言，其可能会涉及到范围扫描查询。英文是这么描述，
+&lt;code&gt;A table index is a replica of a subset of a table&#x27;s columns that is organized and&#x2F;or sorted for efficient access using a subset of those attribute.&lt;&#x2F;code&gt;&lt;&#x2F;p&gt;
+&lt;h3 id=&quot;b-tree&quot;&gt;B+Tree&lt;&#x2F;h3&gt;
+&lt;p&gt;b+树是一种自平衡的树。&lt;&#x2F;p&gt;
+&lt;p&gt;我们说的BTree, 往往说的都是B+Tree。B-tree和B+tree的区别就在于&lt;code&gt;inner node&lt;&#x2F;code&gt;是否存储数据。&lt;&#x2F;p&gt;
+&lt;p&gt;&lt;img src=&quot;https:&#x2F;&#x2F;verilyw.github.io&#x2F;indexes&#x2F;.&#x2F;2022-08-25_21-08.png&quot; alt=&quot;&quot; &#x2F;&gt;&lt;&#x2F;p&gt;
+&lt;p&gt;&lt;strong&gt;B+Tree有如下特性&lt;&#x2F;strong&gt;：&lt;&#x2F;p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;code&gt;M-way&lt;&#x2F;code&gt;而非二叉，有效降低树高。&lt;&#x2F;li&gt;
+&lt;li&gt;每一个&lt;code&gt;inner node&lt;&#x2F;code&gt;至少是half-full，&lt;strong&gt;M&#x2F;2-1 &amp;lt;= #keys &amp;lt;= M-1&lt;&#x2F;strong&gt;。这样提高读取效率，读取一个节点，往往是一个page,可以读取尽可能多的数据。&lt;&#x2F;li&gt;
+&lt;li&gt;&lt;code&gt;inner node&lt;&#x2F;code&gt;, 对于&lt;code&gt;k&lt;&#x2F;code&gt;个keys，要有&lt;code&gt;k+1&lt;&#x2F;code&gt;个非null子节点。&lt;&#x2F;li&gt;
+&lt;&#x2F;ul&gt;
+&lt;p&gt;&lt;img src=&quot;https:&#x2F;&#x2F;verilyw.github.io&#x2F;indexes&#x2F;.&#x2F;2022-8-25-21-14.png&quot; alt=&quot;&quot; &#x2F;&gt;&lt;&#x2F;p&gt;
+&lt;p&gt;&lt;strong&gt;B+树的结构&lt;&#x2F;strong&gt;&lt;&#x2F;p&gt;
+&lt;p&gt;如上图一所示，其节点分为&lt;&#x2F;p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;code&gt;inner node&lt;&#x2F;code&gt;&lt;&#x2F;li&gt;
+&lt;li&gt;&lt;code&gt;leaf node&lt;&#x2F;code&gt;&lt;&#x2F;li&gt;
+&lt;&#x2F;ul&gt;
+&lt;p&gt;每一个b+树的节点都是由一个key&#x2F;value对的数组组成。&lt;&#x2F;p&gt;
+&lt;p&gt;&lt;code&gt;inner node&lt;&#x2F;code&gt;只有索引，而&lt;code&gt;leaf node&lt;&#x2F;code&gt;包含真实的数据，同时还有&lt;code&gt;sibling pointers&lt;&#x2F;code&gt;，这是为了更有效的range查询。&lt;&#x2F;p&gt;
+&lt;p&gt;通常这些数组通过key进行排序。&lt;&#x2F;p&gt;
+&lt;p&gt;&lt;code&gt;Leaf Node&lt;&#x2F;code&gt;的结构如下：
+&lt;img src=&quot;https:&#x2F;&#x2F;verilyw.github.io&#x2F;indexes&#x2F;.&#x2F;1.png&quot; alt=&quot;&quot; &#x2F;&gt;
+&lt;img src=&quot;https:&#x2F;&#x2F;verilyw.github.io&#x2F;indexes&#x2F;.&#x2F;2.png&quot; alt=&quot;&quot; &#x2F;&gt;&lt;&#x2F;p&gt;
+&lt;p&gt;两种不同的kv存储方式，这里的pageID需要理解一下，因为往往B+树的一个节点相当于一个page，所以跳到下一个节点就是跳到另外一个page。&lt;&#x2F;p&gt;
+&lt;p&gt;Leaf节点的内容(value)也分两种：&lt;&#x2F;p&gt;
+&lt;ul&gt;
+&lt;li&gt;Record Ids&lt;&#x2F;li&gt;
+&lt;li&gt;Tuple Data&lt;&#x2F;li&gt;
+&lt;&#x2F;ul&gt;
+&lt;p&gt;&lt;img src=&quot;https:&#x2F;&#x2F;verilyw.github.io&#x2F;indexes&#x2F;.&#x2F;2022-08-25_21-31.png&quot; alt=&quot;&quot; &#x2F;&gt;&lt;&#x2F;p&gt;
+&lt;p&gt;&lt;strong&gt;B+树的插入和删除&lt;&#x2F;strong&gt;&lt;&#x2F;p&gt;
+&lt;p&gt;插入的关键是如果节点满了，需要分裂，分裂完了要把&lt;code&gt;middle key&lt;&#x2F;code&gt;放到上一层节点中做索引，如果上一层也满了，就需要进一步分裂。
+&lt;img src=&quot;https:&#x2F;&#x2F;verilyw.github.io&#x2F;indexes&#x2F;.&#x2F;2022-08-25_21-45.png&quot; alt=&quot;&quot; &#x2F;&gt;&lt;&#x2F;p&gt;
+&lt;p&gt;删除的关键是如果删除后，节点小于half-full了，需要先试图从sibling去借一些key达到half-full, 如果sibling也达不到half-full，那就合并。
+&lt;img src=&quot;https:&#x2F;&#x2F;verilyw.github.io&#x2F;indexes&#x2F;.&#x2F;2022-08-25_21-45_1.png&quot; alt=&quot;&quot; &#x2F;&gt;&lt;&#x2F;p&gt;
+&lt;p&gt;&lt;strong&gt;变长keyss&lt;&#x2F;strong&gt;&lt;&#x2F;p&gt;
+&lt;ul&gt;
+&lt;li&gt;指针：存储键作为元组属性的指针(很少使用)&lt;&#x2F;li&gt;
+&lt;li&gt;可变长度节点：B+树中每个节点的大小可能不同，但需要仔细的内存管理。这种方法也很少使用。&lt;&#x2F;li&gt;
+&lt;li&gt;键映射：嵌入一组指针，指针是映射到节点key+value。类似之前在存储部分讨论的slotted page。(常用方法)&lt;&#x2F;li&gt;
+&lt;&#x2F;ul&gt;
+&lt;p&gt;&lt;img src=&quot;https:&#x2F;&#x2F;verilyw.github.io&#x2F;indexes&#x2F;.&#x2F;2022-08-25_22-10.png&quot; alt=&quot;&quot; &#x2F;&gt;
+&lt;img src=&quot;https:&#x2F;&#x2F;verilyw.github.io&#x2F;indexes&#x2F;.&#x2F;2022-08-26_10-35.png&quot; alt=&quot;&quot; &#x2F;&gt;&lt;&#x2F;p&gt;
+&lt;p&gt;&lt;strong&gt;重复keys&lt;&#x2F;strong&gt;&lt;&#x2F;p&gt;
+&lt;p&gt;&lt;img src=&quot;https:&#x2F;&#x2F;verilyw.github.io&#x2F;indexes&#x2F;.&#x2F;2022-08-25_22-14.png&quot; alt=&quot;&quot; &#x2F;&gt;&lt;&#x2F;p&gt;
+&lt;p&gt;&lt;strong&gt;节点内部的查找方法&lt;&#x2F;strong&gt;&lt;&#x2F;p&gt;
+&lt;p&gt;&lt;img src=&quot;https:&#x2F;&#x2F;verilyw.github.io&#x2F;indexes&#x2F;.&#x2F;2022-08-26_10-31.png&quot; alt=&quot;&quot; &#x2F;&gt;&lt;&#x2F;p&gt;
+&lt;p&gt;&lt;strong&gt;B+树一些其他优化&lt;&#x2F;strong&gt;&lt;&#x2F;p&gt;
+&lt;p&gt;前缀压缩，重复数据消除，批量插入。&lt;&#x2F;p&gt;
+&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;前缀压缩指在一个叶子节点上，如果key拥有共同前最，可以提取出来，节约空间。
+&lt;img src=&quot;https:&#x2F;&#x2F;verilyw.github.io&#x2F;indexes&#x2F;.&#x2F;2022-08-26_10-36.png&quot; alt=&quot;&quot; &#x2F;&gt;&lt;&#x2F;p&gt;
+&lt;&#x2F;li&gt;
+&lt;li&gt;
+&lt;p&gt;重复数据消除指在非唯一索引中，在叶节点中存在相同的key对应多个值，可以把这些重复的key消除。
+&lt;img src=&quot;https:&#x2F;&#x2F;verilyw.github.io&#x2F;indexes&#x2F;.&#x2F;2022-08-26_10-42.png&quot; alt=&quot;&quot; &#x2F;&gt;&lt;&#x2F;p&gt;
+&lt;&#x2F;li&gt;
+&lt;li&gt;
+&lt;p&gt;批量插入，一个一个插入效率低，因为需要不断做分裂。高效的做法是，等插入了很多之后，一次性做一个B+树重建。&lt;&#x2F;p&gt;
+&lt;&#x2F;li&gt;
+&lt;&#x2F;ul&gt;
+&lt;h4 id=&quot;cluster-indexes&quot;&gt;Cluster Indexes&lt;&#x2F;h4&gt;
+&lt;p&gt;clustered indexes 是b+树的应用。在Innodb中，每个表都有一个聚簇索引，该索引是根据primary key对行记录生成的b+树索引，如果没有primary key，会自动生成自增id作为替代。叶子节点存放行数据，称之为数据页，故表中的数据也树聚簇索引中的一部分，数据页通过一个双向链表连接。&lt;&#x2F;p&gt;
+&lt;p&gt;除了clustered Indexes以外，都称为Secondary Indexes，与聚簇索引的区别在于辅助索引的叶子节点中存放的是主键的键值，clustered indexes只有一个，但辅助索引可以有多个。因此，通过辅助索引只能查到主键id，如果要读到数据，还需要查一次聚簇索引，好处是辅助索引不包含数据，所以远小于聚簇索引，查询效率高。&lt;&#x2F;p&gt;
+&lt;p&gt;可以用一列，或者多列来创建辅助索引，称为联合索引，联合索引和普通索引的结构没什么不同，只是会在节点中同时记录下多个列的值，遵循最左原则，先按第一个列排序，再按第二列排，依次下去。因此，查询条件也需要遵循最左原则。&lt;&#x2F;p&gt;
+&lt;p&gt;&lt;img src=&quot;https:&#x2F;&#x2F;verilyw.github.io&#x2F;indexes&#x2F;.&#x2F;3.png&quot; alt=&quot;&quot; &#x2F;&gt;&lt;&#x2F;p&gt;
+&lt;h4 id=&quot;additional-index-usage&quot;&gt;Additional Index Usage&lt;&#x2F;h4&gt;
+&lt;p&gt;除了常规索引外，DBMS还存在许多额外的索引方法。&lt;&#x2F;p&gt;
+&lt;ul&gt;
+&lt;li&gt;隐式索引(Implicit Indexes): 大多数DBMS都会自动创建一个索引，保证完整性约束。(e.g., primary key, unique constraints) &lt;&#x2F;li&gt;
+&lt;li&gt;部分索引(Partial Indexes): 对整个表的子集创建索引。这减少了相应的开销和大小。&lt;&#x2F;li&gt;
+&lt;li&gt;Convering Indexes&lt;&#x2F;li&gt;
+&lt;li&gt;Index Include Columns&lt;&#x2F;li&gt;
+&lt;li&gt;Functions&#x2F;Expression Indexes&lt;&#x2F;li&gt;
+&lt;&#x2F;ul&gt;
+&lt;h3 id=&quot;skiplist-tiao-biao&quot;&gt;SkipList（跳表）&lt;&#x2F;h3&gt;
+&lt;p&gt;&lt;a href=&quot;https:&#x2F;&#x2F;en.wikipedia.org&#x2F;wiki&#x2F;Skip_list&quot;&gt;wiki&lt;&#x2F;a&gt; &amp;amp; 
+&lt;a href=&quot;http:&#x2F;&#x2F;dl.acm.org&#x2F;citation.cfm?id=78977&quot;&gt;paper&lt;&#x2F;a&gt;&lt;&#x2F;p&gt;
+&lt;p&gt;如果用有序数组来实现索引，可以用简单的二分，但是插入和删除会比较麻烦。最简单的方法实现动态保存的index是使用有序链表，但链表只支持线性搜索，时间复杂度为O(n)。如何让链表也能二分查找，提高查询效率，这就是skip list.&lt;&#x2F;p&gt;
+&lt;p&gt;&lt;img src=&quot;https:&#x2F;&#x2F;verilyw.github.io&#x2F;indexes&#x2F;.&#x2F;4.png&quot; alt=&quot;&quot; &#x2F;&gt;&lt;&#x2F;p&gt;
+&lt;p&gt;跳表的数据存放在第一层，上面的都是索引，这样避免一个个遍历，越往上层建的索引越稀疏，总之是为了模拟出二分，用空间换时间，因此时间复杂度近似O(log(n)).&lt;&#x2F;p&gt;
+&lt;ul&gt;
+&lt;li&gt;跳表的插入&lt;&#x2F;li&gt;
+&lt;&#x2F;ul&gt;
+&lt;p&gt;如下图，插入(k5,v5)，这里如何建立索引？即要把k5加到哪几层去。&lt;&#x2F;p&gt;
+&lt;p&gt;答案是flip coin(一个伯努力过程)。连续抛硬币，连续出现的正面的次数为k，我们就会对k层建立索引，如果k大于当前最大的level，就需要建立新的level。这样做有两个好处，因为伯努力过程，所以自然越高的level出现的概率越低，以&lt;code&gt;1&#x2F;2&lt;&#x2F;code&gt;降低，并且插入的数据越多，出现较大k的概率越大。&lt;&#x2F;p&gt;
+&lt;p&gt;&lt;img src=&quot;https:&#x2F;&#x2F;verilyw.github.io&#x2F;indexes&#x2F;.&#x2F;5.png&quot; alt=&quot;&quot; &#x2F;&gt;&lt;&#x2F;p&gt;
+&lt;ul&gt;
+&lt;li&gt;跳表查询&lt;&#x2F;li&gt;
+&lt;&#x2F;ul&gt;
+&lt;p&gt;查询以二分的思路就行。
+&lt;img src=&quot;https:&#x2F;&#x2F;verilyw.github.io&#x2F;indexes&#x2F;.&#x2F;6.webp&quot; alt=&quot;&quot; &#x2F;&gt;&lt;&#x2F;p&gt;
+&lt;ul&gt;
+&lt;li&gt;跳表删除&lt;&#x2F;li&gt;
+&lt;&#x2F;ul&gt;
+&lt;p&gt;关键需要一个标识，先逻辑删除，再物理删除。&lt;&#x2F;p&gt;
+&lt;p&gt;&lt;img src=&quot;https:&#x2F;&#x2F;verilyw.github.io&#x2F;indexes&#x2F;.&#x2F;6.png&quot; alt=&quot;&quot; &#x2F;&gt;&lt;&#x2F;p&gt;
+&lt;p&gt;跳表的优点，相对b+树更节约内存，不需要rebalance。&lt;&#x2F;p&gt;
+&lt;p&gt;缺点是对缓存不友好，因为是链表的关系。其次是反向查找不方便。&lt;&#x2F;p&gt;
+&lt;h3 id=&quot;radix-tree-ji-shu-shu&quot;&gt;Radix tree(基数树)&lt;&#x2F;h3&gt;
+&lt;p&gt;在b+树中，&lt;code&gt;inner node keys&lt;&#x2F;code&gt;并不会告诉你你要找的key是否存在，因此，你必须遍历到&lt;code&gt;leaf node&lt;&#x2F;code&gt;。这意味着，在树中的每个层上至少有一个buffer pool page未命中，只是为了发现某个key不存在。&lt;&#x2F;p&gt;
+&lt;p&gt;使用trie tree对key进行表示，这样就不用比较整个key。&lt;&#x2F;p&gt;
+&lt;p&gt;核心思路，前缀树(trie tree)，节点的path就代表key，可以reconstructed.
+&lt;img src=&quot;https:&#x2F;&#x2F;verilyw.github.io&#x2F;indexes&#x2F;.&#x2F;2022-08-29_14-29.png&quot; alt=&quot;&quot; &#x2F;&gt;&lt;&#x2F;p&gt;
+&lt;p&gt;树高取决于key的length，而不是key的多少，key增多，那么表示key的length肯定会变长，也不需要rebalance.&lt;&#x2F;p&gt;
+&lt;p&gt;Radix Tree和Trie Tree的区别，Radix只有共享的才需要单独的节点。&lt;&#x2F;p&gt;
+&lt;p&gt;&lt;img src=&quot;https:&#x2F;&#x2F;verilyw.github.io&#x2F;indexes&#x2F;.&#x2F;2022-08-29_14-31.png&quot; alt=&quot;&quot; &#x2F;&gt;&lt;&#x2F;p&gt;
+&lt;p&gt;Radix的有点就是插入和删除很简单。&lt;&#x2F;p&gt;
+&lt;p&gt;&lt;img src=&quot;https:&#x2F;&#x2F;verilyw.github.io&#x2F;indexes&#x2F;.&#x2F;7.png&quot; alt=&quot;&quot; &#x2F;&gt;&lt;&#x2F;p&gt;
+</content>
+	</entry>
+	<entry xml:lang="zh">
+		<title>cmu15-455 Buffer Pool</title>
+		<published>2022-08-19T00:00:00+00:00</published>
+		<updated>2022-08-19T00:00:00+00:00</updated>
+		<link rel="alternate" href="https://verilyw.github.io/buffer-pool/" type="text/html"/>
+		<id>https://verilyw.github.io/buffer-pool/</id>
+		<content type="html">&lt;ul&gt;
+&lt;li&gt;Buffer Pool Manager&lt;&#x2F;li&gt;
+&lt;li&gt;Replacement Policies&lt;&#x2F;li&gt;
+&lt;li&gt;Other Memory Pools&lt;&#x2F;li&gt;
+&lt;&#x2F;ul&gt;
+&lt;h2 id=&quot;locks-vs-latches&quot;&gt;Locks vs. Latches&lt;&#x2F;h2&gt;
+&lt;p&gt;we need to make a distinction between locks and latches when discussing how the DBMS protects its internal elements.&lt;&#x2F;p&gt;
+&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;strong&gt;Locks&lt;&#x2F;strong&gt;&lt;&#x2F;p&gt;
+&lt;ul&gt;
+&lt;li&gt;Protect the database logical contents.(e.g., tuples, tables, databases) from other transactions.&lt;&#x2F;li&gt;
+&lt;li&gt;Held for transaction duration.&lt;&#x2F;li&gt;
+&lt;li&gt;Need to be able to rollback changes.&lt;&#x2F;li&gt;
+&lt;&#x2F;ul&gt;
+&lt;&#x2F;li&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;strong&gt;Latches&lt;&#x2F;strong&gt; (Mutex)&lt;&#x2F;p&gt;
+&lt;ul&gt;
+&lt;li&gt;Protect the critical sections of the DBMS&#x27;s internal data structures from other threads.&lt;&#x2F;li&gt;
+&lt;li&gt;Held for operation duration.&lt;&#x2F;li&gt;
+&lt;li&gt;Do not need to be able to rollback changes.&lt;&#x2F;li&gt;
+&lt;&#x2F;ul&gt;
+&lt;&#x2F;li&gt;
+&lt;&#x2F;ul&gt;
+&lt;h2 id=&quot;buffer-pool&quot;&gt;Buffer Pool&lt;&#x2F;h2&gt;
+&lt;p&gt;The &lt;em&gt;buffer pool&lt;&#x2F;em&gt; is an in-memory cache of pages read from disk.&lt;&#x2F;p&gt;
+&lt;p&gt;The DBMS always knows better so we want to manage memory and pages ourselves.&lt;&#x2F;p&gt;
+&lt;p&gt;It is a region of memory organized as an array of fixed size pages. Each array entry is call a &lt;strong&gt;frame&lt;&#x2F;strong&gt;. When the DBMS requests a page, an exact copy is placed into one of these frames.
+&lt;img src=&quot;https:&#x2F;&#x2F;verilyw.github.io&#x2F;buffer-pool&#x2F;2022-08-17_13-04.png&quot; alt=&quot;&quot; &#x2F;&gt;
+Meta-data maintained by the buffer pool:&lt;&#x2F;p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;strong&gt;Page Table&lt;&#x2F;strong&gt;: In-memory hash table that keeps track of pages that are currently in memory. It maps page ids to frame locations in the buffer pool.&lt;&#x2F;li&gt;
+&lt;li&gt;&lt;strong&gt;Dirty-falg&lt;&#x2F;strong&gt;: Threads set this flag when it modified a page. This indicates to storage manager that the page must be written back to disk.&lt;&#x2F;li&gt;
+&lt;li&gt;&lt;strong&gt;Pin Counter&lt;&#x2F;strong&gt;: This tracks the number of threads that are currently accessing that page.(reading or modifing it). A thread has no increment the counter before they access the page. If a page&#x27;s count is greater than zero, then the storage manager is not allowed to evict that page from memory.&lt;&#x2F;li&gt;
+&lt;&#x2F;ul&gt;
+&lt;p&gt;&lt;img src=&quot;https:&#x2F;&#x2F;verilyw.github.io&#x2F;buffer-pool&#x2F;2022-08-17_13-37.png&quot; alt=&quot;&quot; &#x2F;&gt;&lt;&#x2F;p&gt;
+&lt;p&gt;Optimizations:&lt;&#x2F;p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;strong&gt;Multiple Buffer Pools&lt;&#x2F;strong&gt;: The DBMS can also have multiple buffer pools for different purposes. This helps reduce latch contention and improves locality.&lt;&#x2F;li&gt;
+&lt;li&gt;&lt;strong&gt;Pre-Fetching&lt;&#x2F;strong&gt;: The DBMS can also optimize by pre fetching pages based on the query plan. Commonly done when accessing pages sequentially.&lt;&#x2F;li&gt;
+&lt;li&gt;&lt;strong&gt;Scan Sharing&lt;&#x2F;strong&gt;: Query cursors can attach to other cursors and scan pages together.&lt;&#x2F;li&gt;
+&lt;&#x2F;ul&gt;
+&lt;p&gt;Allocation Policies:&lt;&#x2F;p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;strong&gt;Global Policies&lt;&#x2F;strong&gt;: How a DBMS should make decisions for all active txns.&lt;&#x2F;li&gt;
+&lt;li&gt;&lt;strong&gt;Local Policies&lt;&#x2F;strong&gt;: Allocate frames to a specific txn without considering the behavior of concurrent txns.&lt;&#x2F;li&gt;
+&lt;&#x2F;ul&gt;
+&lt;h2 id=&quot;replacement-policies&quot;&gt;Replacement Policies&lt;&#x2F;h2&gt;
+&lt;p&gt;A replacement policy is an algorithm that the DBMS is implements that makes a decision on which pages to evict from buffer pool when it needs space.&lt;&#x2F;p&gt;
+&lt;p&gt;goals:&lt;&#x2F;p&gt;
+&lt;ul&gt;
+&lt;li&gt;Currectness&lt;&#x2F;li&gt;
+&lt;li&gt;Accuracy&lt;&#x2F;li&gt;
+&lt;li&gt;Speed&lt;&#x2F;li&gt;
+&lt;li&gt;Meta-data overhead&lt;&#x2F;li&gt;
+&lt;&#x2F;ul&gt;
+&lt;h3 id=&quot;lru-least-recently-used&quot;&gt;LRU(Least Recently Used)&lt;&#x2F;h3&gt;
+&lt;ul&gt;
+&lt;li&gt;Maintain a timestamp of when each page was last accessed.&lt;&#x2F;li&gt;
+&lt;li&gt;DBMS picks to evict the page with the oldest timestamp.&lt;&#x2F;li&gt;
+&lt;&#x2F;ul&gt;
+&lt;h3 id=&quot;clock&quot;&gt;CLOCK&lt;&#x2F;h3&gt;
+&lt;p&gt;Approximation of LRU without needing a spearate timestamp per page.&lt;&#x2F;p&gt;
+&lt;ul&gt;
+&lt;li&gt;Each page has reference bit. &lt;&#x2F;li&gt;
+&lt;li&gt;When a page is accessed, set to 1&lt;&#x2F;li&gt;
+&lt;&#x2F;ul&gt;
+&lt;p&gt;Organize the pages in a circular buffer with a &amp;quot;clock hand&amp;quot;&lt;&#x2F;p&gt;
+&lt;ul&gt;
+&lt;li&gt;Upon sweeping check if a page bit is set to 1&lt;&#x2F;li&gt;
+&lt;li&gt;If yes, set to 0, if not, then evict.&lt;&#x2F;li&gt;
+&lt;li&gt;Clock hand remembers position between evictions.&lt;&#x2F;li&gt;
+&lt;&#x2F;ul&gt;
+&lt;p&gt;&lt;img src=&quot;https:&#x2F;&#x2F;verilyw.github.io&#x2F;buffer-pool&#x2F;2022-08-17_13-51.png&quot; alt=&quot;&quot; &#x2F;&gt;&lt;&#x2F;p&gt;
+&lt;h3 id=&quot;alternatives&quot;&gt;Alternatives&lt;&#x2F;h3&gt;
+&lt;p&gt;Problems with LRU and CLock replacement Policies:&lt;&#x2F;p&gt;
+&lt;ul&gt;
+&lt;li&gt;LRU and CLock are susceptible to &lt;strong&gt;sequential flooding&lt;&#x2F;strong&gt; where the buffer pool&#x27;s contents are trashed due to a sequential scan.&lt;&#x2F;li&gt;
+&lt;li&gt;It may be that the LRU page is actually important due to not tracking meta-data of how a page is used.&lt;&#x2F;li&gt;
+&lt;&#x2F;ul&gt;
+&lt;p&gt;Better solutions:&lt;&#x2F;p&gt;
+&lt;ul&gt;
+&lt;li&gt;LRU-K: Take into account history of the last K references&lt;&#x2F;li&gt;
+&lt;li&gt;Priority hints: Allow txns to tell the buffer pool whether page is important or not&lt;&#x2F;li&gt;
+&lt;li&gt;Location: Choose pages to evict on a per txn&#x2F;query basis.&lt;&#x2F;li&gt;
+&lt;&#x2F;ul&gt;
+&lt;h2 id=&quot;other-memory-pools&quot;&gt;Other Memory Pools&lt;&#x2F;h2&gt;
+&lt;p&gt;&lt;img src=&quot;https:&#x2F;&#x2F;verilyw.github.io&#x2F;buffer-pool&#x2F;2022-08-17_14-00.png&quot; alt=&quot;&quot; &#x2F;&gt;&lt;&#x2F;p&gt;
+</content>
+	</entry>
+	<entry xml:lang="zh">
+		<title>cmu15-455 Database Storage</title>
+		<published>2022-08-19T00:00:00+00:00</published>
+		<updated>2022-08-19T00:00:00+00:00</updated>
+		<link rel="alternate" href="https://verilyw.github.io/storage/" type="text/html"/>
+		<id>https://verilyw.github.io/storage/</id>
+		<content type="html">&lt;p&gt;课程大纲如下，本节重点在与了解数据库系统在物理的存储层的架构和管理
+&lt;img src=&quot;https:&#x2F;&#x2F;verilyw.github.io&#x2F;storage&#x2F;2022-08-15_12-25.png&quot; alt=&quot;&quot; &#x2F;&gt; &lt;&#x2F;p&gt;
+&lt;h2 id=&quot;disk-oriented-architecture&quot;&gt;Disk-oriented architecture&lt;&#x2F;h2&gt;
+&lt;p&gt;we will foucs on a &lt;code&gt;disk-oriented&lt;&#x2F;code&gt; DBMS architecture that assume that &lt;strong&gt;primary storage location of the database is on non-volatile&lt;&#x2F;strong&gt;&lt;&#x2F;p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;strong&gt;storage architecture:&lt;&#x2F;strong&gt;&lt;&#x2F;li&gt;
+&lt;&#x2F;ul&gt;
+&lt;p&gt;&lt;img src=&quot;https:&#x2F;&#x2F;verilyw.github.io&#x2F;storage&#x2F;2022-08-15_12-30.png&quot; alt=&quot;&quot; &#x2F;&gt;&lt;&#x2F;p&gt;
+&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;strong&gt;Volatile vs. Non-Volatile&lt;&#x2F;strong&gt;&lt;&#x2F;p&gt;
+&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;strong&gt;Volatile Devices&lt;&#x2F;strong&gt;&lt;&#x2F;p&gt;
+&lt;ul&gt;
+&lt;li&gt;Random Access&lt;&#x2F;li&gt;
+&lt;li&gt;Byte-Addressable&lt;&#x2F;li&gt;
+&lt;&#x2F;ul&gt;
+&lt;&#x2F;li&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;strong&gt;Non-Volatile Devices&lt;&#x2F;strong&gt;&lt;&#x2F;p&gt;
+&lt;ul&gt;
+&lt;li&gt;Block&#x2F;page addressable&lt;&#x2F;li&gt;
+&lt;li&gt;Sequential access&lt;&#x2F;li&gt;
+&lt;&#x2F;ul&gt;
+&lt;&#x2F;li&gt;
+&lt;&#x2F;ul&gt;
+&lt;&#x2F;li&gt;
+&lt;&#x2F;ul&gt;
+&lt;p&gt;磁盘与内存之间的读写存在比较大的速度差距，如何高效地在易失性和非易失性之间交换数据(读写), DBMS的设计应该考虑隐藏这种延迟.&lt;&#x2F;p&gt;
+&lt;h2 id=&quot;disk-oriented-dbms&quot;&gt;Disk-Oriented DBMS&lt;&#x2F;h2&gt;
+&lt;p&gt;The database is all in disk, and the data in the database files is organized into pages, and the first page is the directory page.&lt;&#x2F;p&gt;
+&lt;p&gt;In order to operate on the data the DBMS needs to bring the data into memory. It does this by having &lt;em&gt;buffer pool&lt;&#x2F;em&gt; that &lt;strong&gt;manages the movement back and forth between disk and memory.&lt;&#x2F;strong&gt;&lt;&#x2F;p&gt;
+&lt;p&gt;The DBMS also have an execution engine that will execute queries. The execution engine will ask the buffer pool for a specific page, and the buffer pool will take care of bringing that page into memory and giving the execution engine a pointer to the page in memory. The buffer pool manager will ensure that page is there while the execution engine is operating on that memory.&lt;&#x2F;p&gt;
+&lt;p&gt;&lt;img src=&quot;https:&#x2F;&#x2F;verilyw.github.io&#x2F;storage&#x2F;2022-08-15_12-55.png&quot; alt=&quot;&quot; &#x2F;&gt;&lt;&#x2F;p&gt;
+&lt;h2 id=&quot;dbms-vs-os&quot;&gt;DBMS vs. OS&lt;&#x2F;h2&gt;
+&lt;p&gt;they are all very complicated essential softwares.&lt;&#x2F;p&gt;
+&lt;p&gt;&lt;strong&gt;high level design goal&lt;&#x2F;strong&gt;:&lt;&#x2F;p&gt;
+&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;DBMS is to support databases that exceed the amount of memory aviablie. Since the r&#x2F;w is expensive, it is manged carefully. We do not want large stalls from fetching something from disk to slow down everything else. So we want the DBMS to be ables to process other queries while it is waiting to get the data from disk.&lt;&#x2F;p&gt;
+&lt;&#x2F;li&gt;
+&lt;li&gt;
+&lt;p&gt;like virtual memory, where there is a large address space and a place for the OS to bring in pages from disk.&lt;&#x2F;p&gt;
+&lt;&#x2F;li&gt;
+&lt;li&gt;
+&lt;p&gt;possible to use the OS by using:&lt;&#x2F;p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;code&gt;madive&lt;&#x2F;code&gt;: Tells the OS know when you are planning on reading certain pages.&lt;&#x2F;li&gt;
+&lt;li&gt;&lt;code&gt;mlock&lt;&#x2F;code&gt;: Tells the OS to not swap memory ranges out to disk.&lt;&#x2F;li&gt;
+&lt;li&gt;&lt;code&gt;msync&lt;&#x2F;code&gt;: Tells the OS to flush ranges out to disk.&lt;&#x2F;li&gt;
+&lt;&#x2F;ul&gt;
+&lt;&#x2F;li&gt;
+&lt;&#x2F;ul&gt;
+&lt;h2 id=&quot;file-storage&quot;&gt;File Storage&lt;&#x2F;h2&gt;
+&lt;p&gt;The DBMS stores a database as one or more files on disk. Some may use a file hierarchy, others may use a single file(e.g., SQLite).&lt;&#x2F;p&gt;
+&lt;p&gt;The OS does not know anything about the contents of these files. Only the DBMS knows how to decipher their contents, since it is encoded in a way specific to the DBMS.&lt;&#x2F;p&gt;
+&lt;p&gt;The DBMS&#x27;s &lt;em&gt;storage manager&lt;&#x2F;em&gt; is responsible for managing a database&#x27;s files.&lt;&#x2F;p&gt;
+&lt;ul&gt;
+&lt;li&gt;files as collection of page&lt;&#x2F;li&gt;
+&lt;li&gt;keep track of what data has been read and written to pages, as well how much free space there is in the page.&lt;&#x2F;li&gt;
+&lt;&#x2F;ul&gt;
+&lt;h2 id=&quot;database-pages&quot;&gt;Database Pages&lt;&#x2F;h2&gt;
+&lt;p&gt;&lt;strong&gt;A page is a fixed-size block of data.&lt;&#x2F;strong&gt; The DBMS organizes the database across one or more files in pages.&lt;&#x2F;p&gt;
+&lt;p&gt;Pages can contain different kinds of data(tuples, meta-data, indexes, log records...)&lt;&#x2F;p&gt;
+&lt;p&gt;Most systems will not mix these types within pages. Some systems will require that it is self-contained, means that all the information needed to read each page is on the page itself.&lt;&#x2F;p&gt;
+&lt;p&gt;&lt;strong&gt;Each page is given a unique identifier&lt;&#x2F;strong&gt;. If the database is a single file, the the page can just the file offset. Most DBMSs have an &lt;em&gt;indirection layer&lt;&#x2F;em&gt; that maps a page id to a file path and offset. The upper levels of the system  will ask for a specific page number and the storage manager will have to return that page number into a file and an offset to find the page.&lt;&#x2F;p&gt;
+&lt;p&gt;Most DBMSs use fixed-size pages to avoid the engineering overhead needed to support variable-sized pages.&lt;&#x2F;p&gt;
+&lt;p&gt;three concepts of pages in DBMS:&lt;&#x2F;p&gt;
+&lt;ol&gt;
+&lt;li&gt;Hardware page(usually 4KB)&lt;&#x2F;li&gt;
+&lt;li&gt;OS page(4KB)&lt;&#x2F;li&gt;
+&lt;li&gt;Database page(1-16KB)&lt;&#x2F;li&gt;
+&lt;&#x2F;ol&gt;
+&lt;p&gt;The storage device gurantees an atomic write of the size the hardware page. (If our database page is large than our hardware page, the DBMS will have to extra measure to ensure that the data get written out safely since the program cant get partway through writing a database page to disk when system crashes.)&lt;&#x2F;p&gt;
+&lt;h2 id=&quot;database-heap&quot;&gt;Database Heap&lt;&#x2F;h2&gt;
+&lt;p&gt;There are a couple of ways to find the location of the page a DBMS wants on the disk, and the heap file organization is one of the ways.&lt;&#x2F;p&gt;
+&lt;ul&gt;
+&lt;li&gt;Heap File&lt;&#x2F;li&gt;
+&lt;li&gt;Sequential&#x2F;Sorted File&lt;&#x2F;li&gt;
+&lt;li&gt;Hashing File&lt;&#x2F;li&gt;
+&lt;&#x2F;ul&gt;
+&lt;p&gt;&lt;strong&gt;A &lt;em&gt;heap file&lt;&#x2F;em&gt; is an unordered collection of pages where tuples are stored in random order.&lt;&#x2F;strong&gt;&lt;&#x2F;p&gt;
+&lt;p&gt;The DBMS can locate a page on disk given a &lt;code&gt;page_id&lt;&#x2F;code&gt; by using a linked list of pages or a page directory&lt;&#x2F;p&gt;
+&lt;ol&gt;
+&lt;li&gt;&lt;strong&gt;Linked List&lt;&#x2F;strong&gt;: Header page holds pointers to a list of free pages and a list of data pages. However, if teh DBMS is looking for a specific page, it has to do a sequential scan on the data page list until it finds the page it is looking for.&lt;&#x2F;li&gt;
+&lt;li&gt;&lt;strong&gt;Page Directory&lt;&#x2F;strong&gt;: DBMS maintains special pages that track locations of data pages along with the amount os free space on each page.&lt;&#x2F;li&gt;
+&lt;&#x2F;ol&gt;
+&lt;p&gt;&lt;img src=&quot;https:&#x2F;&#x2F;verilyw.github.io&#x2F;storage&#x2F;2022-08-15_14-02.png&quot; alt=&quot;&quot; &#x2F;&gt;
+&lt;img src=&quot;https:&#x2F;&#x2F;verilyw.github.io&#x2F;storage&#x2F;2022-08-15_14-02_1.png&quot; alt=&quot;&quot; &#x2F;&gt;&lt;&#x2F;p&gt;
+&lt;h2 id=&quot;page-layout&quot;&gt;Page Layout&lt;&#x2F;h2&gt;
+&lt;p&gt;&lt;strong&gt;Every page includes a header that records meta-data about the page&#x27;s contents&lt;&#x2F;strong&gt;:&lt;&#x2F;p&gt;
+&lt;ul&gt;
+&lt;li&gt;Page size&lt;&#x2F;li&gt;
+&lt;li&gt;Checksum&lt;&#x2F;li&gt;
+&lt;li&gt;DBMS versin&lt;&#x2F;li&gt;
+&lt;li&gt;Transaction visibility&lt;&#x2F;li&gt;
+&lt;li&gt;Some systems require pages to be self-contained.&lt;&#x2F;li&gt;
+&lt;&#x2F;ul&gt;
+&lt;p&gt;&lt;code&gt;strawman&lt;&#x2F;code&gt;数据布局的方法在删除tuple或者tuple有可变长度的属性的时候会出现问题。&lt;&#x2F;p&gt;
+&lt;p&gt;There are two main approach to laying out data in pages.&lt;&#x2F;p&gt;
+&lt;ol&gt;
+&lt;li&gt;slotted-pages&lt;&#x2F;li&gt;
+&lt;li&gt;log-structured&lt;&#x2F;li&gt;
+&lt;&#x2F;ol&gt;
+&lt;p&gt;&lt;strong&gt;Slotted Pages&lt;&#x2F;strong&gt;: Pages maps slots to offsets.&lt;&#x2F;p&gt;
+&lt;ul&gt;
+&lt;li&gt;Most common approach used in DBMSs today&lt;&#x2F;li&gt;
+&lt;li&gt;To add a tuple, slot array 从头到尾增长，tuple data 将从尾到头增长， 当slot array 和 tuple data相遇时视为页满。&lt;&#x2F;li&gt;
+&lt;li&gt;Header keeps track of the number of slots and the offset of the starting location of last used slot and a slot array.&lt;&#x2F;li&gt;
+&lt;&#x2F;ul&gt;
+&lt;p&gt;&lt;img src=&quot;https:&#x2F;&#x2F;verilyw.github.io&#x2F;storage&#x2F;2022-08-15_14-16.png&quot; alt=&quot;&quot; &#x2F;&gt;&lt;&#x2F;p&gt;
+&lt;p&gt;&lt;strong&gt;Log-Structured&lt;&#x2F;strong&gt;: Instead of storing tuples, the DBMS onlu stores log records.
+&lt;img src=&quot;https:&#x2F;&#x2F;verilyw.github.io&#x2F;storage&#x2F;2022-08-15_14-24.png&quot; alt=&quot;&quot; &#x2F;&gt;&lt;&#x2F;p&gt;
+&lt;h2 id=&quot;tuple-layout&quot;&gt;Tuple Layout&lt;&#x2F;h2&gt;
+&lt;p&gt;&lt;strong&gt;A tuple is essentially a sequence of bytes.&lt;&#x2F;strong&gt; It is DBMS&#x27;s job to interpret those bytes into attribute types and values.&lt;&#x2F;p&gt;
+&lt;p&gt;&lt;strong&gt;Tuple Header&lt;&#x2F;strong&gt;: Contains meta-data about the tuple&lt;&#x2F;p&gt;
+&lt;ul&gt;
+&lt;li&gt;Visbility information for the DBMS&#x27;s concurrency control protocol.&lt;&#x2F;li&gt;
+&lt;li&gt;Bit Map for NULL values.&lt;&#x2F;li&gt;
+&lt;li&gt;Note that the DBMS dose not need to store meta-data about the schema of the database here.&lt;&#x2F;li&gt;
+&lt;&#x2F;ul&gt;
+&lt;p&gt;&lt;strong&gt;Tuple Data&lt;&#x2F;strong&gt;: Actual data for attributes.&lt;&#x2F;p&gt;
+&lt;ul&gt;
+&lt;li&gt;attributes are typically stored in the order that you specify them when you create the table.&lt;&#x2F;li&gt;
+&lt;li&gt;Most DBMSs do not allow a tuple to exceed the size of a page.&lt;&#x2F;li&gt;
+&lt;&#x2F;ul&gt;
+&lt;p&gt;&lt;strong&gt;Unique Identifier&lt;&#x2F;strong&gt;:&lt;&#x2F;p&gt;
+&lt;ul&gt;
+&lt;li&gt;Each tuple in the database is assigned a unique identifier&lt;&#x2F;li&gt;
+&lt;li&gt;Most common: &lt;code&gt;page_id + (offset or slot)&lt;&#x2F;code&gt;&lt;&#x2F;li&gt;
+&lt;li&gt;An application &lt;strong&gt;cannot&lt;&#x2F;strong&gt; rely on these ids to mean anything&lt;&#x2F;li&gt;
+&lt;&#x2F;ul&gt;
+&lt;p&gt;&lt;strong&gt;Denormalized Tuple Data&lt;&#x2F;strong&gt;: If two tables are related, the DBMS can &amp;quot;pre-join&amp;quot; them, so the tables end up on the same page. (read faster, but make updates more expensive)&lt;&#x2F;p&gt;
+&lt;p&gt;&lt;img src=&quot;https:&#x2F;&#x2F;verilyw.github.io&#x2F;storage&#x2F;2022-08-15_14-36.png&quot; alt=&quot;&quot; &#x2F;&gt;&lt;&#x2F;p&gt;
+&lt;h2 id=&quot;data-representation&quot;&gt;Data Representation&lt;&#x2F;h2&gt;
+&lt;p&gt;Tuples&#x27; data is essentially just byte arrays. It is up to the DBMS to know how to interpret those bytes to derive the values for attributes.&lt;&#x2F;p&gt;
+&lt;p&gt;A &lt;em&gt;data representation&lt;&#x2F;em&gt; scheme is how a DBMS stores the bytes for a value.&lt;&#x2F;p&gt;
+&lt;p&gt;four main types that can be stored in tuples: integers, variable precision numbers, fixed point precision numbers, variable length values, and dates&#x2F;times.&lt;&#x2F;p&gt;
+&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;strong&gt;Integers&lt;&#x2F;strong&gt;&lt;&#x2F;p&gt;
+&lt;ul&gt;
+&lt;li&gt;Most DBMSs store integers using their &amp;quot;native&amp;quot; c&#x2F;c++ types as specified by the IEEE-754 standard.&lt;&#x2F;li&gt;
+&lt;li&gt;&lt;code&gt;INTEGER, BIGINT, SMALLINT, TINYINT&lt;&#x2F;code&gt;&lt;&#x2F;li&gt;
+&lt;&#x2F;ul&gt;
+&lt;&#x2F;li&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;strong&gt;Variable Percision Numbers&lt;&#x2F;strong&gt;&lt;&#x2F;p&gt;
+&lt;ul&gt;
+&lt;li&gt;also use the &amp;quot;native&amp;quot; c&#x2F;c++ types specified by IEEE-754.&lt;&#x2F;li&gt;
+&lt;li&gt;faster to computer because CPU can execute instructions on them directly.&lt;&#x2F;li&gt;
+&lt;li&gt;&lt;code&gt;FLOAT, REAL&lt;&#x2F;code&gt;&lt;&#x2F;li&gt;
+&lt;&#x2F;ul&gt;
+&lt;&#x2F;li&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;strong&gt;Fixed Point Precision Numbers&lt;&#x2F;strong&gt;&lt;&#x2F;p&gt;
+&lt;ul&gt;
+&lt;li&gt;numeric data types with arbitary precision and scale. They are typically stored in exact, variable-length binary representation with additional meta-data that will tell the system things like where the decimal should be.&lt;&#x2F;li&gt;
+&lt;li&gt;used when rounding errors are unacceptable.(but performance penalty)&lt;&#x2F;li&gt;
+&lt;li&gt;&lt;code&gt;NUMERIC, DECIMAL&lt;&#x2F;code&gt;&lt;&#x2F;li&gt;
+&lt;&#x2F;ul&gt;
+&lt;&#x2F;li&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;strong&gt;Variable Length Data&lt;&#x2F;strong&gt;&lt;&#x2F;p&gt;
+&lt;ul&gt;
+&lt;li&gt;An array of bytes of arbitary length.&lt;&#x2F;li&gt;
+&lt;li&gt;Has a header which keeps track of the length of the string to make it easy to jump to he next value. &lt;&#x2F;li&gt;
+&lt;li&gt;Some systems will let you store these large values in an external file, and then the tuple will contain a pointer to that file.(such as photo, music ...). one downside of this is that the DBMS cannot manipulate the contents of this file.&lt;&#x2F;li&gt;
+&lt;li&gt;&lt;code&gt;VARCHAR, VARBINARY, TEXT, BLOB&lt;&#x2F;code&gt;&lt;&#x2F;li&gt;
+&lt;&#x2F;ul&gt;
+&lt;&#x2F;li&gt;
+&lt;&#x2F;ul&gt;
+&lt;p&gt;&lt;img src=&quot;https:&#x2F;&#x2F;verilyw.github.io&#x2F;storage&#x2F;2022-08-16_14-29.png&quot; alt=&quot;&quot; &#x2F;&gt;
+&lt;img src=&quot;https:&#x2F;&#x2F;verilyw.github.io&#x2F;storage&#x2F;2022-08-16_14-29_1.png&quot; alt=&quot;&quot; &#x2F;&gt;&lt;&#x2F;p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;strong&gt;Datas and Times&lt;&#x2F;strong&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;code&gt;TIME, DATA, TIMESTAMP&lt;&#x2F;code&gt;&lt;&#x2F;li&gt;
+&lt;&#x2F;ul&gt;
+&lt;&#x2F;li&gt;
+&lt;&#x2F;ul&gt;
+&lt;p&gt;&lt;strong&gt;System Catalogs&lt;&#x2F;strong&gt;&lt;&#x2F;p&gt;
+&lt;p&gt;In order for the DBMS to be able to read these value, it maintains an internal catalog to tell it meta-data about the databases.&lt;&#x2F;p&gt;
+&lt;p&gt;The meta-data will contain what tables and columns the databases have along with their types and the orderings of the values.&lt;&#x2F;p&gt;
+&lt;ul&gt;
+&lt;li&gt;Tables, columns, indexes, views&lt;&#x2F;li&gt;
+&lt;li&gt;User, permissions,&lt;&#x2F;li&gt;
+&lt;li&gt;Internal statistics&lt;&#x2F;li&gt;
+&lt;&#x2F;ul&gt;
+&lt;h2 id=&quot;workloads&quot;&gt;Workloads&lt;&#x2F;h2&gt;
+&lt;p&gt;&lt;img src=&quot;https:&#x2F;&#x2F;verilyw.github.io&#x2F;storage&#x2F;2022-08-16_14-33.png&quot; alt=&quot;&quot; &#x2F;&gt;&lt;&#x2F;p&gt;
+&lt;p&gt;&lt;strong&gt;OLTP: On-line Transanction Processing&lt;&#x2F;strong&gt;&lt;&#x2F;p&gt;
+&lt;ul&gt;
+&lt;li&gt;Fase, short running operations&lt;&#x2F;li&gt;
+&lt;li&gt;Queries operate on single entity at a time&lt;&#x2F;li&gt;
+&lt;li&gt;More wirtes than reads&lt;&#x2F;li&gt;
+&lt;li&gt;Repetitive operations&lt;&#x2F;li&gt;
+&lt;li&gt;Uaually the kind of application that people build first&lt;&#x2F;li&gt;
+&lt;li&gt;Example: User invocations of Amazon. They can add things to their cart, They can make purchases, but the actions only affect their account.
+&lt;img src=&quot;https:&#x2F;&#x2F;verilyw.github.io&#x2F;storage&#x2F;2022-08-16_14-42.png&quot; alt=&quot;&quot; &#x2F;&gt;&lt;&#x2F;li&gt;
+&lt;&#x2F;ul&gt;
+&lt;p&gt;&lt;strong&gt;OLAP: On-line Analytical Processing&lt;&#x2F;strong&gt;&lt;&#x2F;p&gt;
+&lt;ul&gt;
+&lt;li&gt;Long running more complex queries&lt;&#x2F;li&gt;
+&lt;li&gt;Reads large portions of the database&lt;&#x2F;li&gt;
+&lt;li&gt;Exploratory queries&lt;&#x2F;li&gt;
+&lt;li&gt;Deriving new data from data collected on the OLTP side&lt;&#x2F;li&gt;
+&lt;li&gt;Example: Compute the five most bought items over a one month period for these geographical locations.
+&lt;img src=&quot;https:&#x2F;&#x2F;verilyw.github.io&#x2F;storage&#x2F;2022-08-16_14-42_1.png&quot; alt=&quot;&quot; &#x2F;&gt;&lt;&#x2F;li&gt;
+&lt;&#x2F;ul&gt;
+&lt;p&gt;&lt;img src=&quot;https:&#x2F;&#x2F;verilyw.github.io&#x2F;storage&#x2F;2022-08-16_14-45.png&quot; alt=&quot;&quot; &#x2F;&gt;&lt;&#x2F;p&gt;
+&lt;h2 id=&quot;storage-models&quot;&gt;Storage Models&lt;&#x2F;h2&gt;
+&lt;p&gt;There are different ways to store tuples in pages. We have assumed the &lt;strong&gt;n-ary storage model&lt;&#x2F;strong&gt; so far.&lt;&#x2F;p&gt;
+&lt;h3 id=&quot;n-ary-storage-model-nsm&quot;&gt;N-Ary Storage Model(NSM)&lt;&#x2F;h3&gt;
+&lt;p&gt;The DBMS stores all of the attributes for a single tuple contiguously, so NSM is also known as a &amp;quot;row store&amp;quot;.&lt;&#x2F;p&gt;
+&lt;p&gt;This approach is ideal for OLTP workloads where transactions tend to operate only an individual entity and insert heavy workloads.&lt;&#x2F;p&gt;
+&lt;p&gt;only one fetch to be able to get all of the attributes for a single tuple.&lt;&#x2F;p&gt;
+&lt;p&gt;&lt;img src=&quot;https:&#x2F;&#x2F;verilyw.github.io&#x2F;storage&#x2F;2022-08-16_14-56.png&quot; alt=&quot;&quot; &#x2F;&gt;&lt;&#x2F;p&gt;
+&lt;p&gt;&lt;strong&gt;Advantages&lt;&#x2F;strong&gt;&lt;&#x2F;p&gt;
+&lt;ul&gt;
+&lt;li&gt;Fast inserts, updates, and deletes.&lt;&#x2F;li&gt;
+&lt;li&gt;Good for queries that need the entire tuple.&lt;&#x2F;li&gt;
+&lt;&#x2F;ul&gt;
+&lt;p&gt;&lt;strong&gt;Disadvantages&lt;&#x2F;strong&gt;&lt;&#x2F;p&gt;
+&lt;ul&gt;
+&lt;li&gt;Not good for scanning large portions of the table and&#x2F;or a subset of the attributes. This is because it pollutes the buffer pool by fetching data that is not needed for processing the query.&lt;&#x2F;li&gt;
+&lt;&#x2F;ul&gt;
+&lt;p&gt;two different ways to organize a NSM database:&lt;&#x2F;p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;strong&gt;Heap-Origanized&lt;&#x2F;strong&gt;: Tuples are stored in blocks called a heap, and the heap dose not necessarily define an order.&lt;&#x2F;li&gt;
+&lt;li&gt;&lt;strong&gt;Index-Origanized&lt;&#x2F;strong&gt;: Tuples are stored in the primary key index itself, but different from a clustered index.&lt;&#x2F;li&gt;
+&lt;&#x2F;ul&gt;
+&lt;p&gt;&lt;img src=&quot;https:&#x2F;&#x2F;verilyw.github.io&#x2F;storage&#x2F;2022-08-16_14-57.png&quot; alt=&quot;&quot; &#x2F;&gt;&lt;&#x2F;p&gt;
+&lt;h3 id=&quot;decomposition-storage-model-dsm&quot;&gt;Decomposition Storage Model(DSM)&lt;&#x2F;h3&gt;
+&lt;p&gt;The DBMS stores a single attribute(column) for all tuples contiguously in a block of data. Also known as a &amp;quot;column store&amp;quot;.&lt;&#x2F;p&gt;
+&lt;p&gt;This model is ideal for OLAP workloads where read-only queries perform large scans over a subset of the table&#x27;s attributes.&lt;&#x2F;p&gt;
+&lt;p&gt;&lt;img src=&quot;https:&#x2F;&#x2F;verilyw.github.io&#x2F;storage&#x2F;2022-08-16_15-04.png&quot; alt=&quot;&quot; &#x2F;&gt;&lt;&#x2F;p&gt;
+&lt;p&gt;&lt;strong&gt;Advantages&lt;&#x2F;strong&gt;&lt;&#x2F;p&gt;
+&lt;ul&gt;
+&lt;li&gt;Reduces the amount of wasted work during query execution because the DBMS only reads the data that it needs for that query.&lt;&#x2F;li&gt;
+&lt;li&gt;Enable better compression because all of the values for the same attribute are sotred contiguously.&lt;&#x2F;li&gt;
+&lt;&#x2F;ul&gt;
+&lt;p&gt;&lt;strong&gt;Disadvantages&lt;&#x2F;strong&gt;&lt;&#x2F;p&gt;
+&lt;ul&gt;
+&lt;li&gt;Slow for point queries, inserts, updates, and deletes because of the tuple splitting&#x2F;stitching.&lt;&#x2F;li&gt;
+&lt;&#x2F;ul&gt;
+&lt;p&gt;To &lt;strong&gt;put the tuples back together&lt;&#x2F;strong&gt; when are using a column store, we can use:&lt;&#x2F;p&gt;
+&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;strong&gt;Fixed-length offset&lt;&#x2F;strong&gt;:&lt;&#x2F;p&gt;
+&lt;ul&gt;
+&lt;li&gt;Start by assuming the attributes are all fixed-length.&lt;&#x2F;li&gt;
+&lt;li&gt;Then when the system wants the attribute for a specific tuple, it knows how to jumps that spot in the file. To accomandate the variable-length fields, the system can pad them so that they are all the same length, or you could use a dictionary that takes a fixed-size integer and maps the integer to the value.&lt;&#x2F;li&gt;
+&lt;&#x2F;ul&gt;
+&lt;&#x2F;li&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;strong&gt;Embedded Tuple IDs&lt;&#x2F;strong&gt;:&lt;&#x2F;p&gt;
+&lt;ul&gt;
+&lt;li&gt;For every attribute in the columns, store the tuple id with it. The system would also need extra information to tell it how to jump to every attribute that has that id.&lt;&#x2F;li&gt;
+&lt;&#x2F;ul&gt;
+&lt;&#x2F;li&gt;
+&lt;&#x2F;ul&gt;
+&lt;p&gt;&lt;img src=&quot;https:&#x2F;&#x2F;verilyw.github.io&#x2F;storage&#x2F;2022-08-16_15-16.png&quot; alt=&quot;&quot; &#x2F;&gt;&lt;&#x2F;p&gt;
+&lt;p&gt;Most DBMS use fixed-length offsets.&lt;&#x2F;p&gt;
+&lt;p&gt;Row stores are usually better for OLTP, whiil column stores are better for OLAP.&lt;&#x2F;p&gt;
+</content>
+	</entry>
+</feed>

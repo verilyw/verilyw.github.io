@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en"  class="theme--light" >
+
+<head>
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1, viewport-fit=cover">
+  <link rel="apple-touch-icon-precomposed" sizes="144x144" href="https://verilyw.github.io/images/apple-touch-icon-144x144.png" />
+  <link rel="apple-touch-icon-precomposed" sizes="120x120" href="https://verilyw.github.io/images/apple-touch-icon-120x120.png" />
+  <link rel="apple-touch-icon-precomposed" sizes="72x72" href="https://verilyw.github.io/images/apple-touch-icon-72x72.png" />
+  <link rel="apple-touch-icon-precomposed" sizes="57x57" href="https://verilyw.github.io/images/apple-touch-icon-57x57.png" />
+  <link rel="short icon" href="https://verilyw.github.io/icons/favicon-16x16.png" type="image/x-icon" />
+  <link rel="stylesheet" href="https://verilyw.github.io/style.css">
+  <link href="https://cdn.bootcdn.net/ajax/libs/font-awesome/5.15.1/css/all.min.css" rel="stylesheet">
+  <title>W.&#x27;s blog • Prject#1-Buffer Pool</title>
+  
+  
+  <link rel="alternate" type="application/rss+xml" title="W.&#x27;s blog" href="https://verilyw.github.io/rss.xml">
+  
+  
+  
+  
+</head>
+
+<body>
+  <div id="sidebar" class="animated fadeInDown">
+    <div class="logo-title">
+      <div class="title">
+        <img src=https://verilyw.github.io/icons/cat_girl.png style="width:384px;" alt="logo" />
+        <h3><a href="https://verilyw.github.io/">W.&#x27;s blog</a></h3>
+        <div class="description">
+          <p>all for free</p>
+        </div>
+      </div>
+    </div>
+    <ul class="social-links"><li><a href="https://github.com/wanderya"><i class="fab fa-github"></i></a></li><li><a href="https://twitter.com/w"><i class="fab fa-twitter"></i></a></li>
+      
+    </ul>
+    <div class="footer">
+      
+      <span>Designed by </span><a href="https://www.caicai.me">CaiCai</a>
+      <div class="by_zola"><a href="https://www.getzola.org/" target="_blank">Proudly published with Zola!</a></div>
+      
+    </div>
+  </div>
+  <div id="main">
+    <div class="page-top animated fadeInDown">
+      <div class="nav">
+        
+        
+        
+        
+        <li><a  href="https://verilyw.github.io/">首页</a></li>
+        <li><a  href="https://verilyw.github.io/about/">关于</a></li><li><a  href="https://verilyw.github.io/tags">标签</a></li><li><a 
+            href="https://verilyw.github.io/archive/">归档</a></li></div>
+      <div class="information">
+        <div class="back_btn">
+          <a onclick="window.history.go(-1)" ><i
+              class="fas fa-chevron-left"></i></a>
+        </div>
+        
+        
+        
+        <div class="avatar"><img src="https://verilyw.github.io/icons/logo.png"></div>
+      </div>
+    </div>
+    <div class="autopagerize_page_element">
+      <div class="content">
+        
+<article class="post animated fadeInDown">
+  <h1><a href="https:&#x2F;&#x2F;verilyw.github.io&#x2F;db-proj1&#x2F;">Prject#1-Buffer Pool</a></h1>
+  
+  <div class="post-content"><p>本次实验前后花了两三天的时间吧。实验难度不高，不过一些细节需要把控好，然后就是多使用<code>LOG</code>进行调试。</p>
+<p>为了方便记忆和回过头查看，大致写个实验总结。(为遵循cmu的学术规则，总结不会贴代码)</p>
+<h2 id="task-1-lru-replacement-policy">TASK#1-LRU Replacement Policy</h2>
+<p>实现四个函数:</p>
+<ul>
+<li><code>Victim(frame_id_t*)</code></li>
+<li><code>Pin(frame_id_t)</code></li>
+<li><code>Unpin(frame_id_t)</code></li>
+<li><code>Size()</code></li>
+</ul>
+<p>使用<code>lru</code>的策略进行替换。我们会维护一个<code>lru_list</code>的列表，这里主要是<code>pin</code>与<code>unpin</code>操作，<code>pin</code>操作其实可以简单实现为把当前的元素从表中移除出去(如果存在)，而<code>unpin</code>操作把元素加入表中(如果不存在), 如果存在，意味着我们再次访问了它。</p>
+<h2 id="task-2-buffer-pool-manager-instance">TASK#2 - Buffer Pool Manager Instance</h2>
+<p>这里最好理清楚buffer pool中每个item的一个状态。总的来说，可以用三个状态表示<code>Free</code>, <code>Pin</code>， <code>Unpin</code>。
+过程中维护好<code>meta-data</code>。</p>
+<h2 id="task-3-parallel-buffer-pool-manager">TASK#3 - Parallel Buffer Pool Manager</h2>
+<p>没啥可说的，按照提示就能搞定，注意在<code>new page</code>的时候使用什么调度。</p>
+</div>
+  <div class="post-footer">
+    <div class="meta">
+      <div class="info">
+        
+          <i class="far fa-sun"></i><span class="date">2022-08-25</span>
+        
+        
+          <i class="fas fa-tags"></i>
+          
+            <a class="tag" href="https://verilyw.github.io/tags/database">&nbsp;database</a>
+          
+            <a class="tag" href="https://verilyw.github.io/tags/project">&nbsp;project</a>
+          
+        
+      </div>
+    </div>
+  </div>
+</article>
+<div class="share">
+  <div class="weibo">
+    <a class="fab fa-weibo" href="javascript:void((function(s,d,e){try{}catch(e){}var f='http://service.weibo.com/share/share.php?',u=d.location.href,p=['url=',e(u),'&title=',e(d.title),'&appkey=2924220432'].join('');function a(){if(!window.open([f,p].join(''),'mb',['toolbar=0,status=0,resizable=1,width=620,height=450,left=',(s.width-620)/2,',top=',(s.height-450)/2].join('')))u.href=[f,p].join('');};if(/Firefox/.test(navigator.userAgent)){setTimeout(a,0)}else{a()}})(screen,document,encodeURIComponent));"></a>
+  </div>
+  <div class="twitter">
+    <a class="fab fa-twitter" href="http://twitter.com/share?text=Prject#1-Buffer Pool&url=https:&#x2F;&#x2F;verilyw.github.io&#x2F;db-proj1&hashtags=database,project"></a>
+  </div>
+</div>
+
+
+
+
+
+
+
+
+
+      </div>
+    </div>
+  </div>
+  
+  <script>
+    function showLanguages() {
+      let currentDisplay = document.getElementById("languages").style.display;
+      if (currentDisplay == 'none') {
+        document.getElementById("languages").style.display = 'block';
+      } else {
+        document.getElementById("languages").style.display = 'none';
+      }
+    }
+  </script>
+</body>
+
+</html>

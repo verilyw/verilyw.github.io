@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en"  class="theme--light" >
+
+<head>
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1, viewport-fit=cover">
+  <link rel="apple-touch-icon-precomposed" sizes="144x144" href="https://verilyw.github.io/images/apple-touch-icon-144x144.png" />
+  <link rel="apple-touch-icon-precomposed" sizes="120x120" href="https://verilyw.github.io/images/apple-touch-icon-120x120.png" />
+  <link rel="apple-touch-icon-precomposed" sizes="72x72" href="https://verilyw.github.io/images/apple-touch-icon-72x72.png" />
+  <link rel="apple-touch-icon-precomposed" sizes="57x57" href="https://verilyw.github.io/images/apple-touch-icon-57x57.png" />
+  <link rel="short icon" href="https://verilyw.github.io/icons/favicon-16x16.png" type="image/x-icon" />
+  <link rel="stylesheet" href="https://verilyw.github.io/style.css">
+  <link href="https://cdn.bootcdn.net/ajax/libs/font-awesome/5.15.1/css/all.min.css" rel="stylesheet">
+  <title>W.&#x27;s blog • cmu15-455 Index Concurrency Control</title>
+  
+  
+  <link rel="alternate" type="application/rss+xml" title="W.&#x27;s blog" href="https://verilyw.github.io/rss.xml">
+  
+  
+  
+  
+</head>
+
+<body>
+  <div id="sidebar" class="animated fadeInDown">
+    <div class="logo-title">
+      <div class="title">
+        <img src=https://verilyw.github.io/icons/cat_girl.png style="width:384px;" alt="logo" />
+        <h3><a href="https://verilyw.github.io/">W.&#x27;s blog</a></h3>
+        <div class="description">
+          <p>all for free</p>
+        </div>
+      </div>
+    </div>
+    <ul class="social-links"><li><a href="https://github.com/wanderya"><i class="fab fa-github"></i></a></li><li><a href="https://twitter.com/w"><i class="fab fa-twitter"></i></a></li>
+      
+    </ul>
+    <div class="footer">
+      
+      <span>Designed by </span><a href="https://www.caicai.me">CaiCai</a>
+      <div class="by_zola"><a href="https://www.getzola.org/" target="_blank">Proudly published with Zola!</a></div>
+      
+    </div>
+  </div>
+  <div id="main">
+    <div class="page-top animated fadeInDown">
+      <div class="nav">
+        
+        
+        
+        
+        <li><a  href="https://verilyw.github.io/">首页</a></li>
+        <li><a  href="https://verilyw.github.io/about/">关于</a></li><li><a  href="https://verilyw.github.io/tags">标签</a></li><li><a 
+            href="https://verilyw.github.io/archive/">归档</a></li></div>
+      <div class="information">
+        <div class="back_btn">
+          <a onclick="window.history.go(-1)" ><i
+              class="fas fa-chevron-left"></i></a>
+        </div>
+        
+        
+        
+        <div class="avatar"><img src="https://verilyw.github.io/icons/logo.png"></div>
+      </div>
+    </div>
+    <div class="autopagerize_page_element">
+      <div class="content">
+        
+<article class="post animated fadeInDown">
+  <h1><a href="https:&#x2F;&#x2F;verilyw.github.io&#x2F;index-concorrency&#x2F;">cmu15-455 Index Concurrency Control</a></h1>
+  
+  <div class="post-content"><p>本节讨论多线程下，如何并发地访问索引。</p>
+<p>在DBMS中，<strong>concurrency control</strong>通常是一种方法，用于在并发操作共享对象时保证“正确性“结果。</p>
+<p>然而正确性的标准也是多样的</p>
+<ul>
+<li>Logical Correctness: Can I see the data that I am supposed to see?</li>
+<li>Physical Correctness: Is the internal representation of the object sound?</li>
+</ul>
+<p>其中<code>logical correctness</code>主要指应用层的事务等。</p>
+<p>在这里主要讨论的是<code>Physical correctness</code>, 内部数据结构的并发访问。</p>
+<p>在数据库领域，这里做一下<code>lock</code>和<code>latch</code>的区别，latch其实才是我们在并发编程中所熟悉的锁的概念，而lock是在处理DBMS并发控制，如事务处理中用到的概念。
+因此，讨论内部数据结构的并发控制，用的是latch.</p>
+<p><img src="https://verilyw.github.io/index-concorrency/./2022-08-29_15-50.png" alt="" /></p>
+<p>latch可以分为两种模式，读和写。从下表中可以看出，要解决的冲突是读写冲突，而读读是没有冲突的。</p>
+<p><img src="https://verilyw.github.io/index-concorrency/./2022-08-29_15-54.png" alt="" /></p>
+<p><strong>DBMS中的Latch</strong></p>
+<p>现代CPU硬件都提供了关于实现latch的原语指令，如<code>compare-and-swap</code>(CAS)。这里简要介绍一下DBMS实现latch的几种方法。</p>
+<ol>
+<li>借助操作系统内部构建的mutex（如linux的futex)。</li>
+</ol>
+<p>这种方式因为借助了OS的管理，所以对与DBMS来说并不是好的idea，同时有很大的开销。</p>
+<p><code>std::mutex</code>.</p>
+<p>优点是简单，缺点是开销和扩展性。</p>
+<ol start="2">
+<li>Test-and-Set Sping Latch(TAS)</li>
+</ol>
+<p><code>test-and-set</code>也是硬件提供的一种并发原语。它对比使用OS内置的实现，由DBMS控制，所以更有效率。</p>
+<p><code>std::atomic&lt;T&gt;</code></p>
+<p>优点是latch/unlatch更高效。缺点是扩展性和缓存不友好。</p>
+<ol start="3">
+<li>Reader-Writer Latch</li>
+</ol>
+<p>这就是所熟悉的读写锁，允许读者并发读，管理读写队列避免饥饿。其在自旋锁的基础上实现。</p>
+<p>优点是允许并发读。缺点是管理读写队列，大存储的开销很大。</p>
+<h3 id="ha-xi-biao">哈希表</h3>
+<p>在哈希表中主要有两种方法应对并发访问。</p>
+<ul>
+<li>Page Latches</li>
+</ul>
+<p>每个页拥有一个读写latch。线程在访问页时需要获取读或者写latch。这种方式降低了并行，因为可能只有一个进程在同一时间访问一个页.</p>
+<ul>
+<li>Slot Latches</li>
+</ul>
+<p>每个slot拥有一个latch。这增加了并行，因为两个线程能在同一个页中访问不同的slot。但是这也增加了存储和计算开销。</p>
+<h3 id="b-shu">B+树</h3>
+<p>这是数据库中主要的索引结构。解决访问冲突的方式称为，<strong>Latch carbbing/coupling</strong></p>
+<p><img src="https://verilyw.github.io/index-concorrency/./2022-08-29_16-32.png" alt="" /></p>
+<p>读的处理比较简单，从root开始，只要能获取到child的latch，就可以释放parent。</p>
+<p>更新会复杂一些，因为当更新当前节点，可能导致split或者merge，这样父节点也要更新。所以同时获取父子两层的latch，只有当不会发生split或merge，不需要改动父节点的时候，才释放父节点的latch.</p>
+<p><img src="https://verilyw.github.io/index-concorrency/./2022-08-29_16-38.png" alt="" /></p>
+<ul>
+<li>以删除为例，对于删除，我们需要考虑是否merge</li>
+</ul>
+<p>在B的时候，我们不能释放A的latch，因为只有一个35，可能在delete的过程中需要merge。
+但是到了C，C有38，44，删除一个也不会导致merge，所以可以释放A，B的latch.</p>
+<p><img src="https://verilyw.github.io/index-concorrency/./1.png" alt="" /></p>
+<p><img src="https://verilyw.github.io/index-concorrency/./2.png" alt="" /></p>
+<p><img src="https://verilyw.github.io/index-concorrency/./3.png" alt="" /></p>
+<ul>
+<li>同样对于插入，我们要考虑是否split</li>
+</ul>
+<p>B的时候有一个空位，没有split风险，故可以释放A。到了D的时候，可能有split风险，故不能释放B，到I发现有空，故释放B，D.</p>
+<p><img src="https://verilyw.github.io/index-concorrency/./2022-08-29_16-54.png" alt="" /></p>
+<p><img src="https://verilyw.github.io/index-concorrency/./2022-08-29_16-54_2.png" alt="" /></p>
+<p>对于需split的插入列子，如下，到F的时候发现需要split，所以不能释放C，C也要增加节点。</p>
+<p><img src="https://verilyw.github.io/index-concorrency/./4.png" alt="" /></p>
+<p><img src="https://verilyw.github.io/index-concorrency/./5.png" alt="" /></p>
+<p>这个方法有个显著的问题，所有的更新第一步都是从root开始。
+root会成为明显的瓶颈，因为所有锁都要从root开始锁起。</p>
+<p>故可以进行优化</p>
+<p><img src="https://verilyw.github.io/index-concorrency/./2022-08-29_17-06.png" alt="" /></p>
+<p>假设大部分更新是不需要split和merge的，否则效率反而更低了。如果不需要split和merge，就需要给parent加写latch。用读latch，首先避免了每次都在root写写冲突，因为读读是不冲突的，而且又保证了读写冲突，因为别人在更新使，你需要等待。</p>
+<p><a href="https://link.springer.com/article/10.1007/BF00263762">优化算法paper</a></p>
+<p><strong>Leaf Node Scan</strong></p>
+<p>前面的latch都是top-down的方式，因为加锁方向一致，不会有环产生，所以不会产生死锁。</p>
+<p>但B+树在leaf node之间也是有指针的，这就会形成环。</p>
+<p>读的场景，不冲突</p>
+<p><img src="https://verilyw.github.io/index-concorrency/./6.png" alt="" /></p>
+<p>写的场景，产生冲突</p>
+<p>T2冲突的时候，有两个选择，一个是等待，一个是自杀(防止死锁)，因为T2不知道T1在做啥，所以一个合理的方式是，等待一个timeout，然后自杀，这样可以有效避免死锁。</p>
+<p><img src="https://verilyw.github.io/index-concorrency/./7.png" alt="" /></p>
+<p><strong>延迟对parent更新</strong></p>
+<p><img src="https://verilyw.github.io/index-concorrency/./2022-08-29_17-43.png" alt="" /></p>
+<p>这样对parent更新可以批量，并且降低写latch的冲突概率。</p>
+<p><img src="https://verilyw.github.io/index-concorrency/./8.png" alt="" /></p>
+<p><img src="https://verilyw.github.io/index-concorrency/./9.png" alt="" /></p>
+<p>后续有线程单独进行更新parent</p>
+<p><img src="https://verilyw.github.io/index-concorrency/./10.png" alt="" /></p>
+</div>
+  <div class="post-footer">
+    <div class="meta">
+      <div class="info">
+        
+          <i class="far fa-sun"></i><span class="date">2022-08-29</span>
+        
+        
+          <i class="fas fa-tags"></i>
+          
+            <a class="tag" href="https://verilyw.github.io/tags/cmu15-455">&nbsp;cmu15-455</a>
+          
+            <a class="tag" href="https://verilyw.github.io/tags/database">&nbsp;database</a>
+          
+            <a class="tag" href="https://verilyw.github.io/tags/index concurrency">&nbsp;index concurrency</a>
+          
+        
+      </div>
+    </div>
+  </div>
+</article>
+<div class="share">
+  <div class="weibo">
+    <a class="fab fa-weibo" href="javascript:void((function(s,d,e){try{}catch(e){}var f='http://service.weibo.com/share/share.php?',u=d.location.href,p=['url=',e(u),'&title=',e(d.title),'&appkey=2924220432'].join('');function a(){if(!window.open([f,p].join(''),'mb',['toolbar=0,status=0,resizable=1,width=620,height=450,left=',(s.width-620)/2,',top=',(s.height-450)/2].join('')))u.href=[f,p].join('');};if(/Firefox/.test(navigator.userAgent)){setTimeout(a,0)}else{a()}})(screen,document,encodeURIComponent));"></a>
+  </div>
+  <div class="twitter">
+    <a class="fab fa-twitter" href="http://twitter.com/share?text=cmu15-455 Index Concurrency Control&url=https:&#x2F;&#x2F;verilyw.github.io&#x2F;index-concorrency&hashtags=cmu15-455,database,index concurrency"></a>
+  </div>
+</div>
+
+
+
+
+
+
+
+
+
+      </div>
+    </div>
+  </div>
+  
+  <script>
+    function showLanguages() {
+      let currentDisplay = document.getElementById("languages").style.display;
+      if (currentDisplay == 'none') {
+        document.getElementById("languages").style.display = 'block';
+      } else {
+        document.getElementById("languages").style.display = 'none';
+      }
+    }
+  </script>
+</body>
+
+</html>

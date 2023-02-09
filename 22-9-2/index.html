@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en"  class="theme--light" >
+
+<head>
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1, viewport-fit=cover">
+  <link rel="apple-touch-icon-precomposed" sizes="144x144" href="https://verilyw.github.io/images/apple-touch-icon-144x144.png" />
+  <link rel="apple-touch-icon-precomposed" sizes="120x120" href="https://verilyw.github.io/images/apple-touch-icon-120x120.png" />
+  <link rel="apple-touch-icon-precomposed" sizes="72x72" href="https://verilyw.github.io/images/apple-touch-icon-72x72.png" />
+  <link rel="apple-touch-icon-precomposed" sizes="57x57" href="https://verilyw.github.io/images/apple-touch-icon-57x57.png" />
+  <link rel="short icon" href="https://verilyw.github.io/icons/favicon-16x16.png" type="image/x-icon" />
+  <link rel="stylesheet" href="https://verilyw.github.io/style.css">
+  <link href="https://cdn.bootcdn.net/ajax/libs/font-awesome/5.15.1/css/all.min.css" rel="stylesheet">
+  <title>W.&#x27;s blog • 初始化初探</title>
+  
+  
+  <link rel="alternate" type="application/rss+xml" title="W.&#x27;s blog" href="https://verilyw.github.io/rss.xml">
+  
+  
+  
+  
+</head>
+
+<body>
+  <div id="sidebar" class="animated fadeInDown">
+    <div class="logo-title">
+      <div class="title">
+        <img src=https://verilyw.github.io/icons/cat_girl.png style="width:384px;" alt="logo" />
+        <h3><a href="https://verilyw.github.io/">W.&#x27;s blog</a></h3>
+        <div class="description">
+          <p>all for free</p>
+        </div>
+      </div>
+    </div>
+    <ul class="social-links"><li><a href="https://github.com/wanderya"><i class="fab fa-github"></i></a></li><li><a href="https://twitter.com/w"><i class="fab fa-twitter"></i></a></li>
+      
+    </ul>
+    <div class="footer">
+      
+      <span>Designed by </span><a href="https://www.caicai.me">CaiCai</a>
+      <div class="by_zola"><a href="https://www.getzola.org/" target="_blank">Proudly published with Zola!</a></div>
+      
+    </div>
+  </div>
+  <div id="main">
+    <div class="page-top animated fadeInDown">
+      <div class="nav">
+        
+        
+        
+        
+        <li><a  href="https://verilyw.github.io/">首页</a></li>
+        <li><a  href="https://verilyw.github.io/about/">关于</a></li><li><a  href="https://verilyw.github.io/tags">标签</a></li><li><a 
+            href="https://verilyw.github.io/archive/">归档</a></li></div>
+      <div class="information">
+        <div class="back_btn">
+          <a onclick="window.history.go(-1)" ><i
+              class="fas fa-chevron-left"></i></a>
+        </div>
+        
+        
+        
+        <div class="avatar"><img src="https://verilyw.github.io/icons/logo.png"></div>
+      </div>
+    </div>
+    <div class="autopagerize_page_element">
+      <div class="content">
+        
+<article class="post animated fadeInDown">
+  <h1><a href="https:&#x2F;&#x2F;verilyw.github.io&#x2F;22-9-2&#x2F;">初始化初探</a></h1>
+  
+  <div class="post-content"><p>本文主要探索c++中全局变量和静态变量(这里指Non-local varibales)初始化的问题。包括</p>
+<ul>
+<li>什么时候进行初始化</li>
+<li>如何进行初始化</li>
+</ul>
+<h3 id="shi-yao-shi-hou-jin-xing-chu-shi-hua">什么时候进行初始化</h3>
+<p>依据c++标准，全局变量的初始化在<code>main</code>之前完成，那么<code>main</code>函数执行之前具体是什么时候呢？编译期还是运行时？</p>
+<p>答案是既有在编译期，也可能会有在运行时。</p>
+<h3 id="ru-he-jin-xing-chu-shi-hua">如何进行初始化</h3>
+<p>参考<a href="https://en.cppreference.com/w/cpp/language/initialization">cppreference</a>所说，所有具有<code>static duration</code>的非局部变量的初始化会作为程序启动的一部分，在<code>main</code>函数执行之前进行（除非被延迟）。所有具有线程局部存储期的非局部变量的初始化会作为线程启动的一部分进行，按顺序早于线程函数执行开始。对于这两种变量，初始化发生于两个截然不同的阶段：</p>
+<p><strong>静态初始化(static intialization)</strong>：</p>
+<p>指用常量来对变量进行初始化，主要包括两种形式，<code>zero initialization</code>和<code>const initialization</code>。如果可能，应用常量初始化，否则，非局部静态和线程局部变量都会零初始化。</p>
+<ul>
+<li>常量初始化通常在编译期进行。他的变量放在<code>data</code>段。</li>
+<li>零初始化的变量被放在程序的<code>bss</code>段。</li>
+</ul>
+<p><strong>动态初始化(dynamic initialization)</strong>:</p>
+<p>指主要经过函数调用才能完成的初始化，如<code>auto x = foo()</code>, 或者是复杂类型（类）的初始化（需要调用构造函数）等。这些变量的初始化会在<code>main</code>函数执行前有运行时调用相应的代码（函数内的static除外）。</p>
+<p>值得注意的是，<strong>在所有静态初始化完成后，才进行动态初始化</strong>。这个原因也很直接，能静态初始化的变量，它的初始值都是在编译期就能确定下来，因此，可以直接hard core到生成代码里，而动态初始化需要在运行时执行相应的动作才能进行。</p>
+<h4 id="can-kao">参考</h4>
+<ul>
+<li><a href="https://zh.cppreference.com/w/cpp/language/initialization">cppreference</a></li>
+<li><a href="https://www.cnblogs.com/catch/p/4314256.html">相关blog</a></li>
+</ul>
+</div>
+  <div class="post-footer">
+    <div class="meta">
+      <div class="info">
+        
+          <i class="far fa-sun"></i><span class="date">2022-09-02</span>
+        
+        
+          <i class="fas fa-tags"></i>
+          
+            <a class="tag" href="https://verilyw.github.io/tags/c++">&nbsp;c++</a>
+          
+            <a class="tag" href="https://verilyw.github.io/tags/intialization">&nbsp;intialization</a>
+          
+        
+      </div>
+    </div>
+  </div>
+</article>
+<div class="share">
+  <div class="weibo">
+    <a class="fab fa-weibo" href="javascript:void((function(s,d,e){try{}catch(e){}var f='http://service.weibo.com/share/share.php?',u=d.location.href,p=['url=',e(u),'&title=',e(d.title),'&appkey=2924220432'].join('');function a(){if(!window.open([f,p].join(''),'mb',['toolbar=0,status=0,resizable=1,width=620,height=450,left=',(s.width-620)/2,',top=',(s.height-450)/2].join('')))u.href=[f,p].join('');};if(/Firefox/.test(navigator.userAgent)){setTimeout(a,0)}else{a()}})(screen,document,encodeURIComponent));"></a>
+  </div>
+  <div class="twitter">
+    <a class="fab fa-twitter" href="http://twitter.com/share?text=初始化初探&url=https:&#x2F;&#x2F;verilyw.github.io&#x2F;22-9-2&hashtags=c++,intialization"></a>
+  </div>
+</div>
+
+
+
+
+
+
+
+
+
+      </div>
+    </div>
+  </div>
+  
+  <script>
+    function showLanguages() {
+      let currentDisplay = document.getElementById("languages").style.display;
+      if (currentDisplay == 'none') {
+        document.getElementById("languages").style.display = 'block';
+      } else {
+        document.getElementById("languages").style.display = 'none';
+      }
+    }
+  </script>
+</body>
+
+</html>

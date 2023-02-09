@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="en"  class="theme--light" >
+
+<head>
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1, viewport-fit=cover">
+  <link rel="apple-touch-icon-precomposed" sizes="144x144" href="https://verilyw.github.io/images/apple-touch-icon-144x144.png" />
+  <link rel="apple-touch-icon-precomposed" sizes="120x120" href="https://verilyw.github.io/images/apple-touch-icon-120x120.png" />
+  <link rel="apple-touch-icon-precomposed" sizes="72x72" href="https://verilyw.github.io/images/apple-touch-icon-72x72.png" />
+  <link rel="apple-touch-icon-precomposed" sizes="57x57" href="https://verilyw.github.io/images/apple-touch-icon-57x57.png" />
+  <link rel="short icon" href="https://verilyw.github.io/icons/favicon-16x16.png" type="image/x-icon" />
+  <link rel="stylesheet" href="https://verilyw.github.io/style.css">
+  <link href="https://cdn.bootcdn.net/ajax/libs/font-awesome/5.15.1/css/all.min.css" rel="stylesheet">
+  <title>W.&#x27;s blog • cmu15-455 Buffer Pool</title>
+  
+  
+  <link rel="alternate" type="application/rss+xml" title="W.&#x27;s blog" href="https://verilyw.github.io/rss.xml">
+  
+  
+  
+  
+</head>
+
+<body>
+  <div id="sidebar" class="animated fadeInDown">
+    <div class="logo-title">
+      <div class="title">
+        <img src=https://verilyw.github.io/icons/cat_girl.png style="width:384px;" alt="logo" />
+        <h3><a href="https://verilyw.github.io/">W.&#x27;s blog</a></h3>
+        <div class="description">
+          <p>all for free</p>
+        </div>
+      </div>
+    </div>
+    <ul class="social-links"><li><a href="https://github.com/wanderya"><i class="fab fa-github"></i></a></li><li><a href="https://twitter.com/w"><i class="fab fa-twitter"></i></a></li>
+      
+    </ul>
+    <div class="footer">
+      
+      <span>Designed by </span><a href="https://www.caicai.me">CaiCai</a>
+      <div class="by_zola"><a href="https://www.getzola.org/" target="_blank">Proudly published with Zola!</a></div>
+      
+    </div>
+  </div>
+  <div id="main">
+    <div class="page-top animated fadeInDown">
+      <div class="nav">
+        
+        
+        
+        
+        <li><a  href="https://verilyw.github.io/">首页</a></li>
+        <li><a  href="https://verilyw.github.io/about/">关于</a></li><li><a  href="https://verilyw.github.io/tags">标签</a></li><li><a 
+            href="https://verilyw.github.io/archive/">归档</a></li></div>
+      <div class="information">
+        <div class="back_btn">
+          <a onclick="window.history.go(-1)" ><i
+              class="fas fa-chevron-left"></i></a>
+        </div>
+        
+        
+        
+        <div class="avatar"><img src="https://verilyw.github.io/icons/logo.png"></div>
+      </div>
+    </div>
+    <div class="autopagerize_page_element">
+      <div class="content">
+        
+<article class="post animated fadeInDown">
+  <h1><a href="https:&#x2F;&#x2F;verilyw.github.io&#x2F;buffer-pool&#x2F;">cmu15-455 Buffer Pool</a></h1>
+  
+  <div class="post-content"><ul>
+<li>Buffer Pool Manager</li>
+<li>Replacement Policies</li>
+<li>Other Memory Pools</li>
+</ul>
+<h2 id="locks-vs-latches">Locks vs. Latches</h2>
+<p>we need to make a distinction between locks and latches when discussing how the DBMS protects its internal elements.</p>
+<ul>
+<li>
+<p><strong>Locks</strong></p>
+<ul>
+<li>Protect the database logical contents.(e.g., tuples, tables, databases) from other transactions.</li>
+<li>Held for transaction duration.</li>
+<li>Need to be able to rollback changes.</li>
+</ul>
+</li>
+<li>
+<p><strong>Latches</strong> (Mutex)</p>
+<ul>
+<li>Protect the critical sections of the DBMS's internal data structures from other threads.</li>
+<li>Held for operation duration.</li>
+<li>Do not need to be able to rollback changes.</li>
+</ul>
+</li>
+</ul>
+<h2 id="buffer-pool">Buffer Pool</h2>
+<p>The <em>buffer pool</em> is an in-memory cache of pages read from disk.</p>
+<p>The DBMS always knows better so we want to manage memory and pages ourselves.</p>
+<p>It is a region of memory organized as an array of fixed size pages. Each array entry is call a <strong>frame</strong>. When the DBMS requests a page, an exact copy is placed into one of these frames.
+<img src="https://verilyw.github.io/buffer-pool/2022-08-17_13-04.png" alt="" />
+Meta-data maintained by the buffer pool:</p>
+<ul>
+<li><strong>Page Table</strong>: In-memory hash table that keeps track of pages that are currently in memory. It maps page ids to frame locations in the buffer pool.</li>
+<li><strong>Dirty-falg</strong>: Threads set this flag when it modified a page. This indicates to storage manager that the page must be written back to disk.</li>
+<li><strong>Pin Counter</strong>: This tracks the number of threads that are currently accessing that page.(reading or modifing it). A thread has no increment the counter before they access the page. If a page's count is greater than zero, then the storage manager is not allowed to evict that page from memory.</li>
+</ul>
+<p><img src="https://verilyw.github.io/buffer-pool/2022-08-17_13-37.png" alt="" /></p>
+<p>Optimizations:</p>
+<ul>
+<li><strong>Multiple Buffer Pools</strong>: The DBMS can also have multiple buffer pools for different purposes. This helps reduce latch contention and improves locality.</li>
+<li><strong>Pre-Fetching</strong>: The DBMS can also optimize by pre fetching pages based on the query plan. Commonly done when accessing pages sequentially.</li>
+<li><strong>Scan Sharing</strong>: Query cursors can attach to other cursors and scan pages together.</li>
+</ul>
+<p>Allocation Policies:</p>
+<ul>
+<li><strong>Global Policies</strong>: How a DBMS should make decisions for all active txns.</li>
+<li><strong>Local Policies</strong>: Allocate frames to a specific txn without considering the behavior of concurrent txns.</li>
+</ul>
+<h2 id="replacement-policies">Replacement Policies</h2>
+<p>A replacement policy is an algorithm that the DBMS is implements that makes a decision on which pages to evict from buffer pool when it needs space.</p>
+<p>goals:</p>
+<ul>
+<li>Currectness</li>
+<li>Accuracy</li>
+<li>Speed</li>
+<li>Meta-data overhead</li>
+</ul>
+<h3 id="lru-least-recently-used">LRU(Least Recently Used)</h3>
+<ul>
+<li>Maintain a timestamp of when each page was last accessed.</li>
+<li>DBMS picks to evict the page with the oldest timestamp.</li>
+</ul>
+<h3 id="clock">CLOCK</h3>
+<p>Approximation of LRU without needing a spearate timestamp per page.</p>
+<ul>
+<li>Each page has reference bit. </li>
+<li>When a page is accessed, set to 1</li>
+</ul>
+<p>Organize the pages in a circular buffer with a &quot;clock hand&quot;</p>
+<ul>
+<li>Upon sweeping check if a page bit is set to 1</li>
+<li>If yes, set to 0, if not, then evict.</li>
+<li>Clock hand remembers position between evictions.</li>
+</ul>
+<p><img src="https://verilyw.github.io/buffer-pool/2022-08-17_13-51.png" alt="" /></p>
+<h3 id="alternatives">Alternatives</h3>
+<p>Problems with LRU and CLock replacement Policies:</p>
+<ul>
+<li>LRU and CLock are susceptible to <strong>sequential flooding</strong> where the buffer pool's contents are trashed due to a sequential scan.</li>
+<li>It may be that the LRU page is actually important due to not tracking meta-data of how a page is used.</li>
+</ul>
+<p>Better solutions:</p>
+<ul>
+<li>LRU-K: Take into account history of the last K references</li>
+<li>Priority hints: Allow txns to tell the buffer pool whether page is important or not</li>
+<li>Location: Choose pages to evict on a per txn/query basis.</li>
+</ul>
+<h2 id="other-memory-pools">Other Memory Pools</h2>
+<p><img src="https://verilyw.github.io/buffer-pool/2022-08-17_14-00.png" alt="" /></p>
+</div>
+  <div class="post-footer">
+    <div class="meta">
+      <div class="info">
+        
+          <i class="far fa-sun"></i><span class="date">2022-08-19</span>
+        
+        
+          <i class="fas fa-tags"></i>
+          
+            <a class="tag" href="https://verilyw.github.io/tags/buffer pool">&nbsp;buffer pool</a>
+          
+            <a class="tag" href="https://verilyw.github.io/tags/database">&nbsp;database</a>
+          
+            <a class="tag" href="https://verilyw.github.io/tags/cmu15-455">&nbsp;cmu15-455</a>
+          
+        
+      </div>
+    </div>
+  </div>
+</article>
+<div class="share">
+  <div class="weibo">
+    <a class="fab fa-weibo" href="javascript:void((function(s,d,e){try{}catch(e){}var f='http://service.weibo.com/share/share.php?',u=d.location.href,p=['url=',e(u),'&title=',e(d.title),'&appkey=2924220432'].join('');function a(){if(!window.open([f,p].join(''),'mb',['toolbar=0,status=0,resizable=1,width=620,height=450,left=',(s.width-620)/2,',top=',(s.height-450)/2].join('')))u.href=[f,p].join('');};if(/Firefox/.test(navigator.userAgent)){setTimeout(a,0)}else{a()}})(screen,document,encodeURIComponent));"></a>
+  </div>
+  <div class="twitter">
+    <a class="fab fa-twitter" href="http://twitter.com/share?text=cmu15-455 Buffer Pool&url=https:&#x2F;&#x2F;verilyw.github.io&#x2F;buffer-pool&hashtags=buffer pool,database,cmu15-455"></a>
+  </div>
+</div>
+
+
+
+
+
+
+
+
+
+      </div>
+    </div>
+  </div>
+  
+  <script>
+    function showLanguages() {
+      let currentDisplay = document.getElementById("languages").style.display;
+      if (currentDisplay == 'none') {
+        document.getElementById("languages").style.display = 'block';
+      } else {
+        document.getElementById("languages").style.display = 'none';
+      }
+    }
+  </script>
+</body>
+
+</html>

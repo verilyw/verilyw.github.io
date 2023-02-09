@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en"  class="theme--light" >
+
+<head>
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1, viewport-fit=cover">
+  <link rel="apple-touch-icon-precomposed" sizes="144x144" href="https://verilyw.github.io/images/apple-touch-icon-144x144.png" />
+  <link rel="apple-touch-icon-precomposed" sizes="120x120" href="https://verilyw.github.io/images/apple-touch-icon-120x120.png" />
+  <link rel="apple-touch-icon-precomposed" sizes="72x72" href="https://verilyw.github.io/images/apple-touch-icon-72x72.png" />
+  <link rel="apple-touch-icon-precomposed" sizes="57x57" href="https://verilyw.github.io/images/apple-touch-icon-57x57.png" />
+  <link rel="short icon" href="https://verilyw.github.io/icons/favicon-16x16.png" type="image/x-icon" />
+  <link rel="stylesheet" href="https://verilyw.github.io/style.css">
+  <link href="https://cdn.bootcdn.net/ajax/libs/font-awesome/5.15.1/css/all.min.css" rel="stylesheet">
+  <title>W.&#x27;s blog • 关于C++模板类中子类无法看到父类成员</title>
+  
+  
+  <link rel="alternate" type="application/rss+xml" title="W.&#x27;s blog" href="https://verilyw.github.io/rss.xml">
+  
+  
+  
+  
+</head>
+
+<body>
+  <div id="sidebar" class="animated fadeInDown">
+    <div class="logo-title">
+      <div class="title">
+        <img src=https://verilyw.github.io/icons/cat_girl.png style="width:384px;" alt="logo" />
+        <h3><a href="https://verilyw.github.io/">W.&#x27;s blog</a></h3>
+        <div class="description">
+          <p>all for free</p>
+        </div>
+      </div>
+    </div>
+    <ul class="social-links"><li><a href="https://github.com/wanderya"><i class="fab fa-github"></i></a></li><li><a href="https://twitter.com/w"><i class="fab fa-twitter"></i></a></li>
+      
+    </ul>
+    <div class="footer">
+      
+      <span>Designed by </span><a href="https://www.caicai.me">CaiCai</a>
+      <div class="by_zola"><a href="https://www.getzola.org/" target="_blank">Proudly published with Zola!</a></div>
+      
+    </div>
+  </div>
+  <div id="main">
+    <div class="page-top animated fadeInDown">
+      <div class="nav">
+        
+        
+        
+        
+        <li><a  href="https://verilyw.github.io/">首页</a></li>
+        <li><a  href="https://verilyw.github.io/about/">关于</a></li><li><a  href="https://verilyw.github.io/tags">标签</a></li><li><a 
+            href="https://verilyw.github.io/archive/">归档</a></li></div>
+      <div class="information">
+        <div class="back_btn">
+          <a onclick="window.history.go(-1)" ><i
+              class="fas fa-chevron-left"></i></a>
+        </div>
+        
+        
+        
+        <div class="avatar"><img src="https://verilyw.github.io/icons/logo.png"></div>
+      </div>
+    </div>
+    <div class="autopagerize_page_element">
+      <div class="content">
+        
+<article class="post animated fadeInDown">
+  <h1><a href="https:&#x2F;&#x2F;verilyw.github.io&#x2F;1&#x2F;">关于C++模板类中子类无法看到父类成员</a></h1>
+  
+  <div class="post-content"><p>在做cmu14-455的project0的时候，发现c++模板类的派生与普通类的派生对其基类的数据成员访问方式有所差异。在普通类中子类可以访问非<code>private</code>下的父类成员变量。然而，在模板类中，这是不能够直接访问的，会产生<code>not decleared in this scope</code>的错误。</p>
+<!--more-->
+<h2 id="wei-shi-yao-hui-chu-xian-zhe-yang-qing-kuang-ni">为什么会出现这样情况呢？</h2>
+<p>这是一个依赖和非依赖，以及延迟查找的问题。<code>c++</code>模板中的名称会进行两次查找，称为<strong>两阶段查找</strong>(two-phase lookup)。</p>
+<blockquote>
+<p>Here's the rule: the compiler does not look in dependent base classes(like B<T>) when looking up nondependent names(like f).</p>
+</blockquote>
+<p>对于一个非依赖型名称(不以任何方式依赖于模板参数的名称)，在模板声明进行解析的时候就会进行查找。但c++标准中规定(14.6.2 3)，一个非受限的名称查找的时候将不会考虑依赖性的基类。也就是说如果基类是一个模板类(有依赖性的基类)，即使它有非依赖型的成员，也不会进行查找。因此，这也是我们为什么看不到模板基类中非依赖的成员的原因。</p>
+<pre data-lang="c++" style="background-color:#2b303b;color:#6c7079;" class="language-c++ "><code class="language-c++" data-lang="c++"><span style="color:#cd74e8;">template </span><span style="color:#abb2bf;">&lt;</span><span style="color:#cd74e8;">typename</span><span style="color:#abb2bf;"> T&gt;
+</span><span style="color:#cd74e8;">class </span><span style="color:#f0c678;">B </span><span style="color:#adb7c9;">{
+</span><span style="color:#cd74e8;">public</span><span style="color:#adb7c9;">:
+</span><span style="color:#adb7c9;">  </span><span style="color:#cd74e8;">void </span><span style="color:#5cb3fa;">f</span><span style="color:#adb7c9;">() { }  </span><span style="font-style:italic;color:#5f697a;">// Member of class B&lt;T&gt;
+</span><span style="color:#adb7c9;">}</span><span style="color:#abb2bf;">;
+</span><span style="color:#abb2bf;">
+</span><span style="color:#cd74e8;">template </span><span style="color:#abb2bf;">&lt;</span><span style="color:#cd74e8;">typename</span><span style="color:#abb2bf;"> T&gt;
+</span><span style="color:#cd74e8;">class </span><span style="color:#f0c678;">D </span><span style="color:#adb7c9;">: </span><span style="color:#cd74e8;">public </span><span style="color:#9acc76;">B</span><span style="color:#adb7c9;">&lt;T&gt; {
+</span><span style="color:#cd74e8;">public</span><span style="color:#adb7c9;">:
+</span><span style="color:#adb7c9;">  </span><span style="color:#cd74e8;">void </span><span style="color:#5cb3fa;">g</span><span style="color:#adb7c9;">()
+</span><span style="color:#adb7c9;">  {
+</span><span style="color:#adb7c9;">    </span><span style="color:#eb6772;">f</span><span style="color:#adb7c9;">();  </span><span style="font-style:italic;color:#5f697a;">// Bad (even though some compilers erroneously (temporarily?) accept it)
+</span><span style="color:#adb7c9;">  }
+</span><span style="color:#adb7c9;">}</span><span style="color:#abb2bf;">;
+</span></code></pre>
+<h2 id="jie-jue-fang-fa">解决方法</h2>
+<ol>
+<li>
+<p>改变调用方式，如<code>f()</code>写成<code>this-&gt;f()</code>。因为<code>this</code>总是隐式依赖于模板的，故<code>this-&gt;f</code>变成了依赖型名称，查找也因此延迟到模板实例化之后(此时会考虑所有的基类)。</p>
+</li>
+<li>
+<p>在调用<code>f()</code>之前插入<code>using B&lt;T&gt;::f;</code></p>
+</li>
+<li>
+<p>改变调用方式，<code>B&lt;T&gt;::f()</code>。注意这种方式的使用限制，如果<code>f()</code>是虚函数，这会禁止虚函数分配机制。</p>
+</li>
+</ol>
+<h2 id="can-kao">参考</h2>
+<ul>
+<li><a href="https://isocpp.org/wiki/faq/templates#nondependent-name-lookup-members">isocpp</a></li>
+<li><a href="https://stackoverflow.com/questions/4643074/why-do-i-have-to-access-template-base-class-members-through-the-this-pointer">stackoverflow</a></li>
+<li><a href="https://www.zhihu.com/question/28139230">知乎</a></li>
+</ul>
+</div>
+  <div class="post-footer">
+    <div class="meta">
+      <div class="info">
+        
+          <i class="far fa-sun"></i><span class="date">2022-08-21</span>
+        
+        
+          <i class="fas fa-tags"></i>
+          
+            <a class="tag" href="https://verilyw.github.io/tags/c++">&nbsp;c++</a>
+          
+        
+      </div>
+    </div>
+  </div>
+</article>
+<div class="share">
+  <div class="weibo">
+    <a class="fab fa-weibo" href="javascript:void((function(s,d,e){try{}catch(e){}var f='http://service.weibo.com/share/share.php?',u=d.location.href,p=['url=',e(u),'&title=',e(d.title),'&appkey=2924220432'].join('');function a(){if(!window.open([f,p].join(''),'mb',['toolbar=0,status=0,resizable=1,width=620,height=450,left=',(s.width-620)/2,',top=',(s.height-450)/2].join('')))u.href=[f,p].join('');};if(/Firefox/.test(navigator.userAgent)){setTimeout(a,0)}else{a()}})(screen,document,encodeURIComponent));"></a>
+  </div>
+  <div class="twitter">
+    <a class="fab fa-twitter" href="http://twitter.com/share?text=关于C++模板类中子类无法看到父类成员&url=https:&#x2F;&#x2F;verilyw.github.io&#x2F;1&hashtags=c++"></a>
+  </div>
+</div>
+
+
+
+
+
+
+
+<script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+<script>
+  MathJax = {
+    tex: {
+      displayMath: [['$$', '$$'], ["\\[", "\\]"]],
+      inlineMath: [['$', '$'], ['\\(', '\\)']]
+    }
+  };
+</script>
+<script type="text/javascript" id="MathJax-script" async
+  src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js">
+</script>
+
+
+
+      </div>
+    </div>
+  </div>
+  
+  <script>
+    function showLanguages() {
+      let currentDisplay = document.getElementById("languages").style.display;
+      if (currentDisplay == 'none') {
+        document.getElementById("languages").style.display = 'block';
+      } else {
+        document.getElementById("languages").style.display = 'none';
+      }
+    }
+  </script>
+</body>
+
+</html>

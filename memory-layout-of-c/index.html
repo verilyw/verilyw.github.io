@@ -1,0 +1,389 @@
+<!DOCTYPE html>
+<html lang="en"  class="theme--light" >
+
+<head>
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1, viewport-fit=cover">
+  <link rel="apple-touch-icon-precomposed" sizes="144x144" href="https://verilyw.github.io/images/apple-touch-icon-144x144.png" />
+  <link rel="apple-touch-icon-precomposed" sizes="120x120" href="https://verilyw.github.io/images/apple-touch-icon-120x120.png" />
+  <link rel="apple-touch-icon-precomposed" sizes="72x72" href="https://verilyw.github.io/images/apple-touch-icon-72x72.png" />
+  <link rel="apple-touch-icon-precomposed" sizes="57x57" href="https://verilyw.github.io/images/apple-touch-icon-57x57.png" />
+  <link rel="short icon" href="https://verilyw.github.io/icons/favicon-16x16.png" type="image/x-icon" />
+  <link rel="stylesheet" href="https://verilyw.github.io/style.css">
+  <link href="https://cdn.bootcdn.net/ajax/libs/font-awesome/5.15.1/css/all.min.css" rel="stylesheet">
+  <title>W.&#x27;s blog • 不同场景下C++对象的内存布局</title>
+  
+  
+  <link rel="alternate" type="application/rss+xml" title="W.&#x27;s blog" href="https://verilyw.github.io/rss.xml">
+  
+  
+  
+  
+</head>
+
+<body>
+  <div id="sidebar" class="animated fadeInDown">
+    <div class="logo-title">
+      <div class="title">
+        <img src=https://verilyw.github.io/icons/cat_girl.png style="width:384px;" alt="logo" />
+        <h3><a href="https://verilyw.github.io/">W.&#x27;s blog</a></h3>
+        <div class="description">
+          <p>all for free</p>
+        </div>
+      </div>
+    </div>
+    <ul class="social-links"><li><a href="https://github.com/wanderya"><i class="fab fa-github"></i></a></li><li><a href="https://twitter.com/w"><i class="fab fa-twitter"></i></a></li>
+      
+    </ul>
+    <div class="footer">
+      
+      <span>Designed by </span><a href="https://www.caicai.me">CaiCai</a>
+      <div class="by_zola"><a href="https://www.getzola.org/" target="_blank">Proudly published with Zola!</a></div>
+      
+    </div>
+  </div>
+  <div id="main">
+    <div class="page-top animated fadeInDown">
+      <div class="nav">
+        
+        
+        
+        
+        <li><a  href="https://verilyw.github.io/">首页</a></li>
+        <li><a  href="https://verilyw.github.io/about/">关于</a></li><li><a  href="https://verilyw.github.io/tags">标签</a></li><li><a 
+            href="https://verilyw.github.io/archive/">归档</a></li></div>
+      <div class="information">
+        <div class="back_btn">
+          <a onclick="window.history.go(-1)" ><i
+              class="fas fa-chevron-left"></i></a>
+        </div>
+        
+        
+        
+        <div class="avatar"><img src="https://verilyw.github.io/icons/logo.png"></div>
+      </div>
+    </div>
+    <div class="autopagerize_page_element">
+      <div class="content">
+        
+<article class="post animated fadeInDown">
+  <h1><a href="https:&#x2F;&#x2F;verilyw.github.io&#x2F;memory-layout-of-c&#x2F;">不同场景下C++对象的内存布局</a></h1>
+  
+  <div class="post-content"><blockquote>
+<p>本篇文章的内容大部分翻译自<a href="http://www.vishalchovatiya.com/memory-layout-of-cpp-object/">这篇博客</a></p>
+</blockquote>
+<p><img src="https://secureservercdn.net/160.153.138.178/bkh.972.myftpupload.com/wp-content/uploads/memory-layout-of-C-objects.png" alt="" /></p>
+<p>本文，我们将看到不同c++对象的内存布局，以及不同的存储和访问说明符如何影响内存占用。</p>
+<h2 id="jian-dan-dui-xiang">简单对象</h2>
+<p>简单是指没有多态(没有虚函数)，同时也没有静态成员的单独类的一个对象。如下所示，</p>
+<pre data-lang="c++" style="background-color:#2b303b;color:#6c7079;" class="language-c++ "><code class="language-c++" data-lang="c++"><span style="color:#cd74e8;">class </span><span style="color:#f0c678;">X </span><span style="color:#adb7c9;">{
+</span><span style="color:#adb7c9;">    </span><span style="color:#cd74e8;">int</span><span style="color:#adb7c9;"> x;
+</span><span style="color:#adb7c9;">    </span><span style="color:#cd74e8;">float</span><span style="color:#adb7c9;"> xx;
+</span><span style="color:#cd74e8;">public</span><span style="color:#adb7c9;">:
+</span><span style="color:#adb7c9;">    </span><span style="color:#5cb3fa;">X</span><span style="color:#adb7c9;">() {}
+</span><span style="color:#adb7c9;">    </span><span style="color:#5cb3fa;">~X</span><span style="color:#adb7c9;">() {}
+</span><span style="color:#adb7c9;">
+</span><span style="color:#adb7c9;">    </span><span style="color:#cd74e8;">void </span><span style="color:#5cb3fa;">printInt</span><span style="color:#adb7c9;">() {}
+</span><span style="color:#adb7c9;">    </span><span style="color:#cd74e8;">void </span><span style="color:#5cb3fa;">printFloat</span><span style="color:#adb7c9;">() {}
+</span><span style="color:#adb7c9;">}</span><span style="color:#abb2bf;">;
+</span></code></pre>
+<p>其内存布局如下：</p>
+<pre style="background-color:#2b303b;color:#6c7079;"><code><span style="color:#abb2bf;">      |                        |          
+</span><span style="color:#abb2bf;">      |------------------------| &lt;------ X class object memory layout
+</span><span style="color:#abb2bf;">      |        int X::x        |
+</span><span style="color:#abb2bf;">      |------------------------|  stack segment
+</span><span style="color:#abb2bf;">      |       float X::xx      |       |   
+</span><span style="color:#abb2bf;">      |------------------------|       |
+</span><span style="color:#abb2bf;">      |                        |      \|/
+</span><span style="color:#abb2bf;">      |                        |    
+</span><span style="color:#abb2bf;">      |                        |
+</span><span style="color:#abb2bf;">------|------------------------|----------------
+</span><span style="color:#abb2bf;">      |         X::X()         | 
+</span><span style="color:#abb2bf;">      |------------------------|       |   
+</span><span style="color:#abb2bf;">      |        X::~X()         |       |
+</span><span style="color:#abb2bf;">      |------------------------|      \|/
+</span><span style="color:#abb2bf;">      |      X::printInt()     |  text segment
+</span><span style="color:#abb2bf;">      |------------------------|
+</span><span style="color:#abb2bf;">      |     X::printFloat()    |
+</span><span style="color:#abb2bf;">      |------------------------|
+</span><span style="color:#abb2bf;">      |                        |            
+</span></code></pre>
+<p>从上面的例子，我们可以看到只有类的<code>data members</code>放在栈上。同时，他们的声明顺序也是一致的。</p>
+<p>此外，所有的其他成员函数，构造函数，析构函数，以及<a href="http://www.vishalchovatiya.com/inside-the-cpp-object-model/">compiler augmented code</a>都是放在文本段中。这些成员函数在调用的时候，会隐式传入一个<code>this</code>指针作为其函数的第一个参数。</p>
+<h2 id="ju-you-xu-han-shu-he-jing-tai-cheng-yuan-de-dui-xiang">具有虚函数和静态成员的对象</h2>
+<p>因为引入了虚函数，故会对象中会存在一个虚指针表。</p>
+<pre data-lang="c++" style="background-color:#2b303b;color:#6c7079;" class="language-c++ "><code class="language-c++" data-lang="c++"><span style="color:#cd74e8;">class </span><span style="color:#f0c678;">X </span><span style="color:#adb7c9;">{
+</span><span style="color:#adb7c9;">    </span><span style="color:#cd74e8;">int</span><span style="color:#adb7c9;">         x;
+</span><span style="color:#adb7c9;">    </span><span style="color:#cd74e8;">float</span><span style="color:#adb7c9;">       xx;
+</span><span style="color:#adb7c9;">    </span><span style="color:#cd74e8;">static int</span><span style="color:#adb7c9;">  count;
+</span><span style="color:#adb7c9;">
+</span><span style="color:#cd74e8;">public</span><span style="color:#adb7c9;">:
+</span><span style="color:#adb7c9;">    </span><span style="color:#5cb3fa;">X</span><span style="color:#adb7c9;">() {}
+</span><span style="color:#adb7c9;">    </span><span style="color:#cd74e8;">virtual </span><span style="color:#5cb3fa;">~X</span><span style="color:#adb7c9;">() {}
+</span><span style="color:#adb7c9;">
+</span><span style="color:#adb7c9;">    </span><span style="color:#cd74e8;">virtual void </span><span style="color:#5cb3fa;">printAll</span><span style="color:#adb7c9;">() {}
+</span><span style="color:#adb7c9;">    </span><span style="color:#cd74e8;">void </span><span style="color:#5cb3fa;">printInt</span><span style="color:#adb7c9;">() {}
+</span><span style="color:#adb7c9;">    </span><span style="color:#cd74e8;">void </span><span style="color:#5cb3fa;">printFloat</span><span style="color:#adb7c9;">() {}
+</span><span style="color:#adb7c9;">    </span><span style="color:#cd74e8;">static void </span><span style="color:#5cb3fa;">printCount</span><span style="color:#adb7c9;">() {}
+</span><span style="color:#adb7c9;">}</span><span style="color:#abb2bf;">;
+</span></code></pre>
+<p>其内存布局如下：</p>
+<pre style="background-color:#2b303b;color:#6c7079;"><code><span style="color:#abb2bf;">      |                        |          
+</span><span style="color:#abb2bf;">      |------------------------| &lt;------ X class object memory layout
+</span><span style="color:#abb2bf;">      |        int X::x        |
+</span><span style="color:#abb2bf;">stack |------------------------|
+</span><span style="color:#abb2bf;">  |   |       float X::xx      |                      
+</span><span style="color:#abb2bf;">  |   |------------------------|      |-------|--------------------------|
+</span><span style="color:#abb2bf;">  |   |         X::_vptr       |------|       |       type_info X        |
+</span><span style="color:#abb2bf;"> \|/  |------------------------|              |--------------------------|
+</span><span style="color:#abb2bf;">      |           o            |              |    address of X::~X()    |
+</span><span style="color:#abb2bf;">      |           o            |              |--------------------------|
+</span><span style="color:#abb2bf;">      |           o            |              | address of X::printAll() |
+</span><span style="color:#abb2bf;">      |                        |              |--------------------------|
+</span><span style="color:#abb2bf;">      |                        |
+</span><span style="color:#abb2bf;">------|------------------------|------------
+</span><span style="color:#abb2bf;">      |  static int X::count   |      /|\
+</span><span style="color:#abb2bf;">      |------------------------|       |
+</span><span style="color:#abb2bf;">      |           o            |  data segment           
+</span><span style="color:#abb2bf;">      |           o            |       |
+</span><span style="color:#abb2bf;">      |                        |      \|/
+</span><span style="color:#abb2bf;">------|------------------------|------------
+</span><span style="color:#abb2bf;">      |        X::X()          | 
+</span><span style="color:#abb2bf;">      |------------------------|       |   
+</span><span style="color:#abb2bf;">      |        X::~X()         |       |
+</span><span style="color:#abb2bf;">      |------------------------|       | 
+</span><span style="color:#abb2bf;">      |      X::printAll()     |      \|/ 
+</span><span style="color:#abb2bf;">      |------------------------|  text segment
+</span><span style="color:#abb2bf;">      |      X::printInt()     |
+</span><span style="color:#abb2bf;">      |------------------------|
+</span><span style="color:#abb2bf;">      |     X::printFloat()    |
+</span><span style="color:#abb2bf;">      |------------------------|
+</span><span style="color:#abb2bf;">      | static X::printCount() |
+</span><span style="color:#abb2bf;">      |------------------------|
+</span><span style="color:#abb2bf;">      |                        |
+</span></code></pre>
+<p>我们进行逐一分析，首先非静态成员变量和成员函数依旧不变。</p>
+<p>由于引入了新的静态成员变量，在程序的内存布局中出现了一个新的名称，<code>data segment</code>。这个部分主要存储一些全局变量，静态变量和常量等。因此，我们的静态成员变量也放在这个部分。这些静态变量并不属于该类的某一个对象拥有，而是这个类所有，可以理解对该类的所有对象是共享的。当我们访问的时候，要考虑到命名空间和作用域名，因此，一般会使用<code>::</code>进行访问。此处还涉及到<a href="https://www.google.com/url?sa=t&amp;rct=j&amp;q=&amp;esrc=s&amp;source=web&amp;cd=2&amp;cad=rja&amp;uact=8&amp;ved=2ahUKEwjloqrohPToAhXDILcAHU4eC4kQFjABegQIDhAD&amp;url=https%3A%2F%2Fwww.ibm.com%2Fsupport%2Fknowledgecenter%2Fssw_ibm_i_72%2Frzarg%2Fname_mangling.htm&amp;usg=AOvVaw1JsTeSnCRnH6Cm-FjtqOUq">name mangling</a>。</p>
+<p>此外，还需要说明一下，虽然静态成员函数和非静态成员函数(统称成员函数)都位于<code>text segment</code>中，但是他们之间最重要的区别是非静态成员在调用的时候没有<code>this</code>指针传入。</p>
+<p>接着，对于<code>virtual</code>关键字，编译器会自动在对象的内存布局中插入一个<code>_vptr</code>指针指向一张虚表。在虚表中，<code>type_info</code>包含当前类的相关信息，如果有基类，那么还有有其他基类的信息（DAG）。</p>
+<p><code>_vptr</code>的数据类型在标准中没有提及。</p>
+<h2 id="ji-cheng-dui-xiang">继承对象</h2>
+<p>c++的继承一般分为三种，单一继承，多重继承和虚继承。如下是单一继承：</p>
+<pre data-lang="c++" style="background-color:#2b303b;color:#6c7079;" class="language-c++ "><code class="language-c++" data-lang="c++"><span style="color:#cd74e8;">class </span><span style="color:#f0c678;">X </span><span style="color:#adb7c9;">{
+</span><span style="color:#adb7c9;">    </span><span style="color:#cd74e8;">int</span><span style="color:#adb7c9;">     x;
+</span><span style="color:#adb7c9;">    string str;
+</span><span style="color:#adb7c9;">
+</span><span style="color:#cd74e8;">public</span><span style="color:#adb7c9;">:
+</span><span style="color:#adb7c9;">    </span><span style="color:#5cb3fa;">X</span><span style="color:#adb7c9;">() {}
+</span><span style="color:#adb7c9;">    </span><span style="color:#cd74e8;">virtual </span><span style="color:#5cb3fa;">~X</span><span style="color:#adb7c9;">() {}
+</span><span style="color:#adb7c9;">
+</span><span style="color:#adb7c9;">    </span><span style="color:#cd74e8;">virtual void </span><span style="color:#5cb3fa;">printAll</span><span style="color:#adb7c9;">() {}
+</span><span style="color:#adb7c9;">}</span><span style="color:#abb2bf;">;
+</span><span style="color:#abb2bf;">
+</span><span style="color:#cd74e8;">class </span><span style="color:#f0c678;">Y </span><span style="color:#adb7c9;">: </span><span style="color:#cd74e8;">public </span><span style="color:#9acc76;">X </span><span style="color:#adb7c9;">{
+</span><span style="color:#adb7c9;">    </span><span style="color:#cd74e8;">int</span><span style="color:#adb7c9;">     y;
+</span><span style="color:#adb7c9;">
+</span><span style="color:#cd74e8;">public</span><span style="color:#adb7c9;">:
+</span><span style="color:#adb7c9;">    </span><span style="color:#5cb3fa;">Y</span><span style="color:#adb7c9;">() {}
+</span><span style="color:#adb7c9;">    </span><span style="color:#5cb3fa;">~Y</span><span style="color:#adb7c9;">() {}
+</span><span style="color:#adb7c9;">
+</span><span style="color:#adb7c9;">    </span><span style="color:#cd74e8;">void </span><span style="color:#5cb3fa;">printAll</span><span style="color:#adb7c9;">() {}
+</span><span style="color:#adb7c9;">}</span><span style="color:#abb2bf;">;
+</span></code></pre>
+<p>其内存布局如下：</p>
+<pre style="background-color:#2b303b;color:#6c7079;"><code><span style="color:#abb2bf;">      |                              |          
+</span><span style="color:#abb2bf;">      |------------------------------| &lt;------ Y class object memory layout
+</span><span style="color:#abb2bf;">      |          int X::x            |
+</span><span style="color:#abb2bf;">stack |------------------------------|
+</span><span style="color:#abb2bf;">  |   |              int string::len |
+</span><span style="color:#abb2bf;">  |   |string X::str ----------------|
+</span><span style="color:#abb2bf;">  |   |            char* string::str |         
+</span><span style="color:#abb2bf;"> \|/  |------------------------------|      |-------|--------------------------|
+</span><span style="color:#abb2bf;">      |           X::_vptr           |------|       |       type_info Y        |
+</span><span style="color:#abb2bf;">      |------------------------------|              |--------------------------|
+</span><span style="color:#abb2bf;">      |          int Y::y            |              |    address of Y::~Y()    |
+</span><span style="color:#abb2bf;">      |------------------------------|              |--------------------------|
+</span><span style="color:#abb2bf;">      |               o              |              | address of Y::printAll() |
+</span><span style="color:#abb2bf;">      |               o              |              |--------------------------|
+</span><span style="color:#abb2bf;">      |               o              |              
+</span><span style="color:#abb2bf;">------|------------------------------|--------
+</span><span style="color:#abb2bf;">      |           X::X()             | 
+</span><span style="color:#abb2bf;">      |------------------------------|       |   
+</span><span style="color:#abb2bf;">      |           X::~X()            |       |
+</span><span style="color:#abb2bf;">      |------------------------------|       | 
+</span><span style="color:#abb2bf;">      |         X::printAll()        |      \|/ 
+</span><span style="color:#abb2bf;">      |------------------------------|  text segment
+</span><span style="color:#abb2bf;">      |           Y::Y()             |
+</span><span style="color:#abb2bf;">      |------------------------------|
+</span><span style="color:#abb2bf;">      |           Y::~Y()            |
+</span><span style="color:#abb2bf;">      |------------------------------|
+</span><span style="color:#abb2bf;">      |         Y::printAll()        |
+</span><span style="color:#abb2bf;">      |------------------------------|
+</span><span style="color:#abb2bf;">      |      string::string()        |
+</span><span style="color:#abb2bf;">      |------------------------------|
+</span><span style="color:#abb2bf;">      |      string::~string()       |
+</span><span style="color:#abb2bf;">      |------------------------------|
+</span><span style="color:#abb2bf;">      |      string::length()        |
+</span><span style="color:#abb2bf;">      |------------------------------|
+</span><span style="color:#abb2bf;">      |               o              |
+</span><span style="color:#abb2bf;">      |               o              |
+</span><span style="color:#abb2bf;">      |               o              |
+</span><span style="color:#abb2bf;">      |                              |
+</span></code></pre>
+<p>在继承模型中，基类和数据成员类都是派生类的一个子对象(如上图的 <code>X</code>，<code>string</code>)。</p>
+<p>注意，此时虚表中所有被<code>overriden</code>的虚函数以及其他信息在构造函数阶段会被编译器生成并赋给<code>_vptr</code>。</p>
+<h2 id="duo-zhong-ji-cheng-xia-ju-you-xu-han-shu-de-dui-xiang">多重继承下具有虚函数的对象</h2>
+<p><code>Z</code>从<code>X</code>和<code>Y</code>派生而来，同时<code>X</code>和<code>Y</code>中都有虚函数。代码如下：</p>
+<pre data-lang="c++" style="background-color:#2b303b;color:#6c7079;" class="language-c++ "><code class="language-c++" data-lang="c++"><span style="color:#cd74e8;">class </span><span style="color:#f0c678;">X </span><span style="color:#adb7c9;">{
+</span><span style="color:#cd74e8;">public</span><span style="color:#adb7c9;">:
+</span><span style="color:#adb7c9;">    </span><span style="color:#cd74e8;">int</span><span style="color:#adb7c9;">     x;
+</span><span style="color:#adb7c9;">    
+</span><span style="color:#adb7c9;">    </span><span style="color:#cd74e8;">virtual </span><span style="color:#5cb3fa;">~X</span><span style="color:#adb7c9;">() {}
+</span><span style="color:#adb7c9;">    </span><span style="color:#cd74e8;">virtual void </span><span style="color:#5cb3fa;">printX</span><span style="color:#adb7c9;">() {}
+</span><span style="color:#adb7c9;">}</span><span style="color:#abb2bf;">;
+</span><span style="color:#abb2bf;">
+</span><span style="color:#cd74e8;">class </span><span style="color:#f0c678;">Y </span><span style="color:#adb7c9;">{
+</span><span style="color:#cd74e8;">public</span><span style="color:#adb7c9;">:
+</span><span style="color:#adb7c9;">    </span><span style="color:#cd74e8;">int</span><span style="color:#adb7c9;">     y;
+</span><span style="color:#adb7c9;">    
+</span><span style="color:#adb7c9;">    </span><span style="color:#cd74e8;">virtual </span><span style="color:#5cb3fa;">~Y</span><span style="color:#adb7c9;">() {}
+</span><span style="color:#adb7c9;">    </span><span style="color:#cd74e8;">virtual void </span><span style="color:#5cb3fa;">printY</span><span style="color:#adb7c9;">() {}
+</span><span style="color:#adb7c9;">}</span><span style="color:#abb2bf;">;
+</span><span style="color:#abb2bf;">
+</span><span style="color:#cd74e8;">class </span><span style="color:#f0c678;">Z </span><span style="color:#adb7c9;">: </span><span style="color:#cd74e8;">public </span><span style="color:#9acc76;">X</span><span style="color:#adb7c9;">, </span><span style="color:#cd74e8;">public </span><span style="color:#9acc76;">Y </span><span style="color:#adb7c9;">{
+</span><span style="color:#cd74e8;">public</span><span style="color:#adb7c9;">:
+</span><span style="color:#adb7c9;">    </span><span style="color:#cd74e8;">int</span><span style="color:#adb7c9;">     z;
+</span><span style="color:#adb7c9;">    
+</span><span style="color:#adb7c9;">    </span><span style="color:#5cb3fa;">~Z</span><span style="color:#adb7c9;">() {}
+</span><span style="color:#adb7c9;">    </span><span style="color:#cd74e8;">void </span><span style="color:#5cb3fa;">printX</span><span style="color:#adb7c9;">() {}
+</span><span style="color:#adb7c9;">    </span><span style="color:#cd74e8;">void </span><span style="color:#5cb3fa;">printY</span><span style="color:#adb7c9;">() {}
+</span><span style="color:#adb7c9;">    </span><span style="color:#cd74e8;">void </span><span style="color:#5cb3fa;">printZ</span><span style="color:#adb7c9;">() {}
+</span><span style="color:#adb7c9;">}</span><span style="color:#abb2bf;">;
+</span></code></pre>
+<p>其内存布局如下:</p>
+<pre style="background-color:#2b303b;color:#6c7079;"><code><span style="color:#abb2bf;">      |                              |          
+</span><span style="color:#abb2bf;">      |------------------------------| &lt;------ Z class object memory layout
+</span><span style="color:#abb2bf;">stack |          int X::x            |         
+</span><span style="color:#abb2bf;">  |   |------------------------------|                  |--------------------------|      
+</span><span style="color:#abb2bf;">  |   |          X:: _vptr           |-----------------&gt;|       type_info Z        |
+</span><span style="color:#abb2bf;">  |   |------------------------------|                  |--------------------------|
+</span><span style="color:#abb2bf;"> \|/  |          int Y::y            |                  |    address of Z::~Z()    |
+</span><span style="color:#abb2bf;">      |------------------------------|                  |--------------------------|
+</span><span style="color:#abb2bf;">      |          Y:: _vptr           |------|           |   address of Z::printX() |
+</span><span style="color:#abb2bf;">      |------------------------------|      |           |--------------------------|
+</span><span style="color:#abb2bf;">      |          int Z::z            |      |           |--------GUARD_AREA--------|    
+</span><span style="color:#abb2bf;">      |------------------------------|      |           |--------------------------|
+</span><span style="color:#abb2bf;">      |              o               |      |----------&gt;|       type_info Z        |
+</span><span style="color:#abb2bf;">      |              o               |                  |--------------------------|
+</span><span style="color:#abb2bf;">      |              o               |                  |    address of Z::~Z()    |
+</span><span style="color:#abb2bf;">      |                              |                  |--------------------------|
+</span><span style="color:#abb2bf;">------|------------------------------|---------         |   address of Z::printY() |
+</span><span style="color:#abb2bf;">      |           X::~X()            |       |          |--------------------------|  
+</span><span style="color:#abb2bf;">      |------------------------------|       |          
+</span><span style="color:#abb2bf;">      |          X::printX()         |       |        
+</span><span style="color:#abb2bf;">      |------------------------------|       |         
+</span><span style="color:#abb2bf;">      |           Y::~Y()            |      \|/        
+</span><span style="color:#abb2bf;">      |------------------------------|  text segment
+</span><span style="color:#abb2bf;">      |          Y::printY()         |                
+</span><span style="color:#abb2bf;">      |------------------------------|                
+</span><span style="color:#abb2bf;">      |           Z::~Z()            |                
+</span><span style="color:#abb2bf;">      |------------------------------|                
+</span><span style="color:#abb2bf;">      |          Z::printX()         |                
+</span><span style="color:#abb2bf;">      |------------------------------|                
+</span><span style="color:#abb2bf;">      |          Z::printY()         |                
+</span><span style="color:#abb2bf;">      |------------------------------|                
+</span><span style="color:#abb2bf;">      |          Z::printZ()         |                
+</span><span style="color:#abb2bf;">      |------------------------------|                
+</span><span style="color:#abb2bf;">      |               o              |                
+</span><span style="color:#abb2bf;">      |               o              |                
+</span><span style="color:#abb2bf;">      |                              |                
+</span></code></pre>
+<p>在多重继承的层次结构中，此时我们有两个<code>_vptr</code>分别来自<code>X</code>和<code>Y</code>。</p>
+<h2 id="xu-ji-cheng">虚继承</h2>
+<pre data-lang="c++" style="background-color:#2b303b;color:#6c7079;" class="language-c++ "><code class="language-c++" data-lang="c++"><span style="color:#cd74e8;">class </span><span style="color:#f0c678;">X </span><span style="color:#adb7c9;">{ </span><span style="color:#cd74e8;">int</span><span style="color:#adb7c9;"> x; }</span><span style="color:#abb2bf;">;
+</span><span style="color:#cd74e8;">class </span><span style="color:#f0c678;">Y </span><span style="color:#adb7c9;">: </span><span style="color:#cd74e8;">public virtual </span><span style="color:#9acc76;">X </span><span style="color:#adb7c9;">{ </span><span style="color:#cd74e8;">int</span><span style="color:#adb7c9;"> y; }</span><span style="color:#abb2bf;">;
+</span><span style="color:#cd74e8;">class </span><span style="color:#f0c678;">Z </span><span style="color:#adb7c9;">: </span><span style="color:#cd74e8;">public virtual </span><span style="color:#9acc76;">X </span><span style="color:#adb7c9;">{ </span><span style="color:#cd74e8;">int</span><span style="color:#adb7c9;"> z; }</span><span style="color:#abb2bf;">;
+</span><span style="color:#cd74e8;">class </span><span style="color:#f0c678;">A </span><span style="color:#adb7c9;">: </span><span style="color:#cd74e8;">public </span><span style="color:#9acc76;">Y</span><span style="color:#adb7c9;">, </span><span style="color:#cd74e8;">public </span><span style="color:#9acc76;">Z </span><span style="color:#adb7c9;">{ </span><span style="color:#cd74e8;">int</span><span style="color:#adb7c9;"> a; }</span><span style="color:#abb2bf;">;
+</span></code></pre>
+<p>其内存布局如下：</p>
+<pre style="background-color:#2b303b;color:#6c7079;"><code><span style="color:#abb2bf;">                  |                |          
+</span><span style="color:#abb2bf;"> Y class  ------&gt; |----------------| &lt;------ A class object memory layout
+</span><span style="color:#abb2bf;">sub-object        |   Y::y         |          
+</span><span style="color:#abb2bf;">                  |----------------|             |------------------| 
+</span><span style="color:#abb2bf;">                  |   Y::_vptr_Y   |------|      |    offset of X   | // offset(20) starts from Y 
+</span><span style="color:#abb2bf;"> Z class  ------&gt; |----------------|      |----&gt; |------------------|     
+</span><span style="color:#abb2bf;">sub-object        |   Z::z         |             |       .....      |     
+</span><span style="color:#abb2bf;">                  |----------------|             |------------------|  
+</span><span style="color:#abb2bf;">                  |   Z::_vptr_Z   |------|       
+</span><span style="color:#abb2bf;">                  |----------------|      |        
+</span><span style="color:#abb2bf;"> A sub-object --&gt; |   A::a         |      |      |------------------| 
+</span><span style="color:#abb2bf;">                  |----------------|      |      |    offset of X   | // offset(12) starts from Z
+</span><span style="color:#abb2bf;"> X class -------&gt; |   X::x         |      |----&gt; |------------------|          
+</span><span style="color:#abb2bf;"> shared           |----------------|             |       .....      |           
+</span><span style="color:#abb2bf;"> sub-object       |                |             |------------------|           
+</span></code></pre>
+<p>此是内存布局包含两个区域：</p>
+<ul>
+<li>不可变区域</li>
+<li>共享区域(<code>X</code>变成一个共享对象，也就是其只存在一份)</li>
+</ul>
+</div>
+  <div class="post-footer">
+    <div class="meta">
+      <div class="info">
+        
+          <i class="far fa-sun"></i><span class="date">2022-08-22</span>
+        
+        
+      </div>
+    </div>
+  </div>
+</article>
+<div class="share">
+  <div class="weibo">
+    <a class="fab fa-weibo" href="javascript:void((function(s,d,e){try{}catch(e){}var f='http://service.weibo.com/share/share.php?',u=d.location.href,p=['url=',e(u),'&title=',e(d.title),'&appkey=2924220432'].join('');function a(){if(!window.open([f,p].join(''),'mb',['toolbar=0,status=0,resizable=1,width=620,height=450,left=',(s.width-620)/2,',top=',(s.height-450)/2].join('')))u.href=[f,p].join('');};if(/Firefox/.test(navigator.userAgent)){setTimeout(a,0)}else{a()}})(screen,document,encodeURIComponent));"></a>
+  </div>
+  <div class="twitter">
+    <a class="fab fa-twitter" href="http://twitter.com/share?text=不同场景下C++对象的内存布局&url=https:&#x2F;&#x2F;verilyw.github.io&#x2F;memory-layout-of-c"></a>
+  </div>
+</div>
+
+
+
+
+
+
+
+<script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+<script>
+  MathJax = {
+    tex: {
+      displayMath: [['$$', '$$'], ["\\[", "\\]"]],
+      inlineMath: [['$', '$'], ['\\(', '\\)']]
+    }
+  };
+</script>
+<script type="text/javascript" id="MathJax-script" async
+  src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js">
+</script>
+
+
+
+      </div>
+    </div>
+  </div>
+  
+  <script>
+    function showLanguages() {
+      let currentDisplay = document.getElementById("languages").style.display;
+      if (currentDisplay == 'none') {
+        document.getElementById("languages").style.display = 'block';
+      } else {
+        document.getElementById("languages").style.display = 'none';
+      }
+    }
+  </script>
+</body>
+
+</html>
